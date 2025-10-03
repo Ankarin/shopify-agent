@@ -1,11 +1,22 @@
 import { Redis } from "@upstash/redis";
 import { convertToModelMessages, createIdGenerator, streamText, UIMessage } from "ai";
-import { NextRequest } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
 const redis = new Redis({
     token: process.env.UPSTASH_REDIS_REST_TOKEN,
     url: process.env.UPSTASH_REDIS_REST_URL,
 });
+
+export const OPTIONS = async () => {
+    return new NextResponse(null, {
+        status: 200,
+        headers: {
+            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Methods': 'POST, OPTIONS',
+            'Access-Control-Allow-Headers': 'Content-Type',
+        },
+    });
+};
 
 export const POST = async (req: NextRequest) => {
     const body = await req.json();
@@ -21,7 +32,7 @@ export const POST = async (req: NextRequest) => {
         messages: convertToModelMessages(messages),
     });
 
-    return result.toUIMessageStreamResponse({
+    const response = result.toUIMessageStreamResponse({
         originalMessages: messages ?? [],
         generateMessageId: createIdGenerator({
             prefix: "msg",
@@ -31,4 +42,10 @@ export const POST = async (req: NextRequest) => {
             await redis.set(`chat:history:${id}`, messages);
         },
     });
+
+    response.headers.set('Access-Control-Allow-Origin', '*');
+    response.headers.set('Access-Control-Allow-Methods', 'POST, OPTIONS');
+    response.headers.set('Access-Control-Allow-Headers', 'Content-Type');
+
+    return response;
 };
