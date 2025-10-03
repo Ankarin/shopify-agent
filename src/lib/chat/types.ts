@@ -1,0 +1,33 @@
+export interface Organization {
+    id: string;
+    name: string;
+    shopifyDomain: string;
+    settings: {
+        brandColor?: string;
+        welcomeMessage?: string;
+    };
+    createdAt: Date;
+}
+
+export interface Chat {
+    id: string;
+    orgId: string;
+    status: 'active' | 'resolved' | 'escalated';
+    visitorId?: string;
+    email?: string;
+    createdAt: Date;
+    updatedAt: Date;
+}
+
+export interface ChatMessage {
+    id: string;
+    chatId: string;
+    role: 'user' | 'assistant';
+    content: string;
+    metadata?: {
+        intent?: string;
+        orderId?: string;
+    };
+    createdAt: Date;
+}
+
