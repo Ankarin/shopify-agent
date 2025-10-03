@@ -93,7 +93,7 @@ export function AppSidebar() {
                                     disabled={!currentOrgId}
                                 >
                                     <LayoutDashboard className="h-4 w-4" />
-                                    <span>Dashboard</span>
+                                    <span>Manage Org</span>
                                 </SidebarMenuButton>
                             </SidebarMenuItem>
                         </SidebarMenu>

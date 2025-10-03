@@ -6,7 +6,7 @@ import { Skeleton } from "./ui/skeleton";
 import { ModeToggle } from "./ui/toggle";
 import { useEffect, useState } from "react";
 import { useRouter, useParams } from "next/navigation";
-import { Building2, Plus, ChevronDown } from "lucide-react";
+import { Building2, Plus, ChevronDown, LayoutDashboard } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -107,6 +107,15 @@ const Header = () => {
           <div className="flex items-center gap-4">
             <SidebarTrigger className="hover:bg-accent hover:text-accent-foreground transition-colors" />
 
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => router.push("/")}
+            >
+              <LayoutDashboard className="h-4 w-4 mr-2" />
+              Dashboard
+            </Button>
+
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="outline" className="gap-2">
@@ -161,7 +170,7 @@ const Header = () => {
       </header>
 
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent>
+        <DialogContent className="max-w-2xl">
           <DialogHeader>
             <DialogTitle>Create New Organization</DialogTitle>
             <DialogDescription>
@@ -203,7 +212,7 @@ const Header = () => {
                     setFormData({ ...formData, data: e.target.value })
                   }
                   placeholder="Paste any relevant data here..."
-                  rows={6}
+                  rows={12}
                   className="resize-none"
                 />
               </div>
