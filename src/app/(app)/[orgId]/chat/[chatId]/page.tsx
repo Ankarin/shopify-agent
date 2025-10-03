@@ -1,6 +1,6 @@
 'use client';
 
-import { WidgetChat } from '@/components/chat/widget-chat';
+import { WebsiteWidget } from '@/components/chat/website-widget';
 
 export default async function ChatPage({
     params,
@@ -9,6 +9,6 @@ export default async function ChatPage({
 }) {
     const { orgId, chatId } = await params;
 
-    return <WidgetChat orgId={orgId} chatId={chatId} />;
+    return <WebsiteWidget orgId={orgId} chatId={chatId} />;
 }
 
