@@ -1,4 +1,3 @@
-import { openai } from "@ai-sdk/openai";
 import { Redis } from "@upstash/redis";
 import { convertToModelMessages, createIdGenerator, streamText, UIMessage } from "ai";
 import { NextRequest } from "next/server";
