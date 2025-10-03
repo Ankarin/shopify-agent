@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useChat } from '@ai-sdk/react';
 import { DefaultChatTransport } from 'ai';
 import {
@@ -32,6 +32,7 @@ export function WebsiteWidget({ orgId, chatId }: WebsiteWidgetProps) {
     const [isOpen, setIsOpen] = useState(false);
     const [input, setInput] = useState('');
     const [isInitialized, setIsInitialized] = useState(false);
+    const messagesEndRef = useRef<HTMLDivElement>(null);
 
     const { messages, sendMessage, status, setMessages } = useChat({
         id: chatId,
@@ -47,6 +48,10 @@ export function WebsiteWidget({ orgId, chatId }: WebsiteWidgetProps) {
             },
         }),
     });
+
+    const scrollToBottom = () => {
+        messagesEndRef.current?.scrollIntoView({ behavior: 'auto' });
+    };
 
     useEffect(() => {
         const initializeChat = async () => {
@@ -67,6 +72,16 @@ export function WebsiteWidget({ orgId, chatId }: WebsiteWidgetProps) {
 
         initializeChat();
     }, [orgId, chatId, setMessages]);
+
+    useEffect(() => {
+        if (isInitialized && isOpen) {
+            setTimeout(scrollToBottom, 100);
+        }
+    }, [isInitialized, isOpen]);
+
+    useEffect(() => {
+        scrollToBottom();
+    }, [messages]);
 
     const handleSubmit = (message: PromptInputMessage) => {
         const hasText = Boolean(message.text);
@@ -124,6 +139,7 @@ export function WebsiteWidget({ orgId, chatId }: WebsiteWidgetProps) {
                                             </div>
                                         ))}
                                         {status === 'submitted' && <Loader />}
+                                        <div ref={messagesEndRef} />
                                     </ConversationContent>
                                     <ConversationScrollButton />
                                 </Conversation>
