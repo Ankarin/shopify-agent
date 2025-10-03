@@ -7,6 +7,17 @@ const redis = new Redis({
     url: process.env.UPSTASH_REDIS_REST_URL,
 });
 
+export async function OPTIONS() {
+    return new NextResponse(null, {
+        status: 200,
+        headers: {
+            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Methods': 'GET, OPTIONS',
+            'Access-Control-Allow-Headers': 'Content-Type',
+        },
+    });
+}
+
 export async function GET(
     req: NextRequest,
     { params }: { params: Promise<{ orgId: string; chatId: string }> }
@@ -21,12 +32,23 @@ export async function GET(
             chatId,
             status: 'active',
             messages: history || [],
+        }, {
+            headers: {
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Methods': 'GET, OPTIONS',
+                'Access-Control-Allow-Headers': 'Content-Type',
+            },
         });
     } catch (error) {
         console.error('Error fetching chat:', error);
         return NextResponse.json(
             { error: 'Failed to fetch chat' },
-            { status: 500 }
+            {
+                status: 500,
+                headers: {
+                    'Access-Control-Allow-Origin': '*',
+                },
+            }
         );
     }
 }
