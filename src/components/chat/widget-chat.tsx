@@ -89,9 +89,9 @@ export function WidgetChat({ orgId, chatId }: WidgetChatProps) {
     }
 
     return (
-        <div className="max-w-4xl mx-auto p-6 relative size-full h-screen">
+        <div className="max-w-4xl mx-auto p-6 relative h-full">
             <div className="flex flex-col h-full">
-                <Conversation className="h-full">
+                <Conversation className="flex-1">
                     <ConversationContent>
                         {messages.map((message) => (
                             <div key={message.id}>
@@ -124,8 +124,9 @@ export function WidgetChat({ orgId, chatId }: WidgetChatProps) {
                                 onChange={(e) => setInput(e.target.value)}
                                 value={input}
                                 className="flex-1"
+                                disabled={status === 'submitted' || status === 'streaming'}
                             />
-                            <PromptInputSubmit disabled={!input && !status} status={status} />
+                            <PromptInputSubmit disabled={!input || status === 'submitted' || status === 'streaming'} status={status} />
                         </div>
                     </PromptInputBody>
                 </PromptInput>

@@ -1,0 +1,22 @@
+import { boolean, index, integer, json, pgTable, text, timestamp, uuid, varchar } from "drizzle-orm/pg-core";
+
+
+export const organizations = pgTable("organizations", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  name: text("name").notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  data: json("data"),
+  website: text("website").notNull(),
+});
+
+export const chats = pgTable("chats", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  organizationId: uuid("organization_id").references(() => organizations.id, { onDelete: "cascade" }),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+
+
+
