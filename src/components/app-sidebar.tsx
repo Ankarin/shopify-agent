@@ -71,54 +71,66 @@ export function AppSidebar() {
 
     return (
         <Sidebar>
-            <SidebarHeader className="p-4">
-                <Button
-                    onClick={handleCreateChat}
-                    className="w-full"
-                    size="sm"
-                    disabled={!currentOrgId}
-                >
-                    <Plus className="h-4 w-4" />
-                    New Chat
-                </Button>
-            </SidebarHeader>
-            <SidebarContent>
-                <SidebarGroup>
-                    <SidebarGroupContent>
-                        <SidebarMenu>
-                            <SidebarMenuItem>
-                                <SidebarMenuButton
-                                    onClick={() => router.push(`/${currentOrgId}`)}
-                                    isActive={!params?.chatId}
-                                    disabled={!currentOrgId}
-                                >
-                                    <LayoutDashboard className="h-4 w-4" />
-                                    <span>Manage Org</span>
-                                </SidebarMenuButton>
-                            </SidebarMenuItem>
-                        </SidebarMenu>
-                    </SidebarGroupContent>
-                </SidebarGroup>
-                <SidebarGroup>
-                    <SidebarGroupLabel>Chats</SidebarGroupLabel>
-                    <SidebarGroupContent>
-                        <SidebarMenu>
-                            {chats.map((chat) => (
-                                <SidebarMenuItem key={chat.id}>
-                                    <SidebarMenuButton
-                                        onClick={() => router.push(`/${currentOrgId}/chat/${chat.id}`)}
-                                        isActive={params?.chatId === chat.id}
-                                    >
-                                        <MessageSquare className="h-4 w-4" />
-                                        <span>Chat {new Date(chat.createdAt).toLocaleString()}</span>
-                                    </SidebarMenuButton>
-                                </SidebarMenuItem>
-                            ))}
-                        </SidebarMenu>
-                    </SidebarGroupContent>
-                </SidebarGroup>
-            </SidebarContent>
-            <SidebarFooter />
+            {currentOrgId ? (
+                <>
+                    <SidebarHeader className="p-4">
+                        <Button
+                            onClick={handleCreateChat}
+                            className="w-full"
+                            size="sm"
+                        >
+                            <Plus className="h-4 w-4" />
+                            New Chat
+                        </Button>
+                    </SidebarHeader>
+                    <SidebarContent>
+                        <SidebarGroup>
+                            <SidebarGroupContent>
+                                <SidebarMenu>
+                                    <SidebarMenuItem>
+                                        <SidebarMenuButton
+                                            onClick={() => router.push(`/${currentOrgId}`)}
+                                            isActive={!params?.chatId}
+                                        >
+                                            <LayoutDashboard className="h-4 w-4" />
+                                            <span>Manage Org</span>
+                                        </SidebarMenuButton>
+                                    </SidebarMenuItem>
+                                </SidebarMenu>
+                            </SidebarGroupContent>
+                        </SidebarGroup>
+                        <SidebarGroup>
+                            <SidebarGroupLabel>Chats</SidebarGroupLabel>
+                            <SidebarGroupContent>
+                                <SidebarMenu>
+                                    {chats.map((chat) => (
+                                        <SidebarMenuItem key={chat.id}>
+                                            <SidebarMenuButton
+                                                onClick={() => router.push(`/${currentOrgId}/chat/${chat.id}`)}
+                                                isActive={params?.chatId === chat.id}
+                                            >
+                                                <MessageSquare className="h-4 w-4" />
+                                                <span>Chat {new Date(chat.createdAt).toLocaleString()}</span>
+                                            </SidebarMenuButton>
+                                        </SidebarMenuItem>
+                                    ))}
+                                </SidebarMenu>
+                            </SidebarGroupContent>
+                        </SidebarGroup>
+                    </SidebarContent>
+                    <SidebarFooter />
+                </>
+            ) : (
+                <SidebarContent>
+                    <SidebarGroup>
+                        <SidebarGroupContent className="p-4">
+                            <p className="text-sm text-muted-foreground text-center">
+                                Select an organization to view chats
+                            </p>
+                        </SidebarGroupContent>
+                    </SidebarGroup>
+                </SidebarContent>
+            )}
         </Sidebar>
     )
 }
