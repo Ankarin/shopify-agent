@@ -19,12 +19,12 @@ export const createLookupOrderByEmailTool = (shopifyClient: ShopifyClient) => to
 
             if (orders.length === 0) {
                 console.log('⚠️ [Tool: lookupOrderByEmail] No orders found for email:', email);
-                return { success: false, message: 'No orders found for this email address.' };
+                throw new Error('No orders found for this email address.');
             }
 
             const formattedOrders = orders.map(order => shopifyClient.formatOrderInfo(order)).join('\n\n---\n\n');
             console.log(`✅ [Tool: lookupOrderByEmail] Success - Returning ${orders.length} formatted orders`);
-            return { success: true, orders: formattedOrders };
+            return formattedOrders;
         } catch (error: any) {
             const duration = Date.now() - startTime;
             console.error(`❌ [Tool: lookupOrderByEmail] Error after ${duration}ms:`, {
@@ -32,7 +32,7 @@ export const createLookupOrderByEmailTool = (shopifyClient: ShopifyClient) => to
                 error: error.message,
                 stack: error.stack,
             });
-            return { success: false, message: `Failed to lookup orders: ${error.message}` };
+            throw new Error(`Failed to lookup orders: ${error.message}`);
         }
     },
 });

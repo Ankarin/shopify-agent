@@ -105,8 +105,15 @@ Be friendly, helpful, and proactive. When customers ask about orders, products, 
         };
     }
 
-    const result = streamText({
+    console.log('🤖 [Chat API] Starting streamText with', {
         model: 'openai/gpt-5-mini',
+        hasTools: !!tools,
+        toolNames: tools ? Object.keys(tools) : [],
+        messagesCount: messages.length,
+    });
+
+    const result = streamText({
+        model: 'anthropic/claude-4-5-sonnet',
         messages: convertToModelMessages(messages),
         system: systemPrompt,
         tools,

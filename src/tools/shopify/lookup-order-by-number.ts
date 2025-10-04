@@ -17,14 +17,14 @@ export const createLookupOrderByNumberTool = (shopifyClient: ShopifyClient) => t
 
             if (!order) {
                 console.log(`⚠️ [Tool: lookupOrderByNumber] Order not found after ${duration}ms:`, orderNumber);
-                return { success: false, message: `Order ${orderNumber} not found.` };
+                throw new Error(`Order ${orderNumber} not found.`);
             }
 
             console.log(`✅ [Tool: lookupOrderByNumber] Success in ${duration}ms - Order found:`, {
                 orderNumber,
                 orderId: order.id,
             });
-            return { success: true, order: shopifyClient.formatOrderInfo(order) };
+            return shopifyClient.formatOrderInfo(order);
         } catch (error: any) {
             const duration = Date.now() - startTime;
             console.error(`❌ [Tool: lookupOrderByNumber] Error after ${duration}ms:`, {
@@ -32,7 +32,7 @@ export const createLookupOrderByNumberTool = (shopifyClient: ShopifyClient) => t
                 error: error.message,
                 stack: error.stack,
             });
-            return { success: false, message: `Failed to lookup order: ${error.message}` };
+            throw new Error(`Failed to lookup order: ${error.message}`);
         }
     },
 });

@@ -17,7 +17,7 @@ export const createGetProductTool = (shopifyClient: ShopifyClient) => tool({
 
             if (!product || product.length === 0) {
                 console.log(`⚠️ [Tool: getProduct] Product not found after ${duration}ms:`, productId);
-                return { success: false, message: 'Product not found.' };
+                throw new Error('Product not found.');
             }
 
             const p = product[0];
@@ -36,13 +36,10 @@ export const createGetProductTool = (shopifyClient: ShopifyClient) => tool({
             });
 
             return {
-                success: true,
-                product: {
-                    title: p.title,
-                    description: p.description,
-                    variants,
-                    images: p.images.edges.map(({ node }) => node.url),
-                }
+                title: p.title,
+                description: p.description,
+                variants,
+                images: p.images.edges.map(({ node }) => node.url),
             };
         } catch (error: any) {
             const duration = Date.now() - startTime;
@@ -51,7 +48,7 @@ export const createGetProductTool = (shopifyClient: ShopifyClient) => tool({
                 error: error.message,
                 stack: error.stack,
             });
-            return { success: false, message: `Failed to get product: ${error.message}` };
+            throw new Error(`Failed to get product: ${error.message}`);
         }
     },
 });

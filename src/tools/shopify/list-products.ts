@@ -17,7 +17,7 @@ export const createListProductsTool = (shopifyClient: ShopifyClient) => tool({
 
             if (products.length === 0) {
                 console.log(`⚠️ [Tool: listProducts] No products found after ${duration}ms`);
-                return { success: false, message: 'No products found in the store.' };
+                throw new Error('No products found in the store.');
             }
 
             const productList = products.map(p => {
@@ -39,11 +39,7 @@ export const createListProductsTool = (shopifyClient: ShopifyClient) => tool({
 
             console.log(`✅ [Tool: listProducts] Success in ${duration}ms - Returning ${productList.length} products`);
 
-            return {
-                success: true,
-                products: productList,
-                count: productList.length,
-            };
+            return productList;
         } catch (error: any) {
             const duration = Date.now() - startTime;
             console.error(`❌ [Tool: listProducts] Error after ${duration}ms:`, {
@@ -51,7 +47,7 @@ export const createListProductsTool = (shopifyClient: ShopifyClient) => tool({
                 error: error.message,
                 stack: error.stack,
             });
-            return { success: false, message: `Failed to list products: ${error.message}` };
+            throw new Error(`Failed to list products: ${error.message}`);
         }
     },
 });

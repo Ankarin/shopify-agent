@@ -23,6 +23,70 @@ import { Loader } from '@/components/ai-elements/loader';
 import { Button } from '@/components/ui/button';
 import { MessageSquare, X } from 'lucide-react';
 
+const ToolDisplay = ({ part }: { part: any }) => {
+    const toolName = part.type?.replace('tool-', '');
+
+    const getToolMessage = (toolName: string, state: string) => {
+        const messages: Record<string, Record<string, string>> = {
+            lookupOrderByEmail: {
+                'input-streaming': 'Looking up orders by email...',
+                'input-available': 'Looking up orders by email...',
+                'output-available': 'Found orders',
+                'output-error': 'Failed to lookup orders',
+            },
+            lookupOrderByNumber: {
+                'input-streaming': 'Looking up order...',
+                'input-available': 'Looking up order...',
+                'output-available': 'Found order',
+                'output-error': 'Failed to lookup order',
+            },
+            getProduct: {
+                'input-streaming': 'Getting product details...',
+                'input-available': 'Getting product details...',
+                'output-available': 'Found product',
+                'output-error': 'Failed to get product',
+            },
+            listProducts: {
+                'input-streaming': 'Getting product list...',
+                'input-available': 'Getting product list...',
+                'output-available': 'Found products',
+                'output-error': 'Failed to list products',
+            },
+        };
+
+        return messages[toolName]?.[state] || `${toolName} ${state}`;
+    };
+
+    const message = getToolMessage(toolName, part.state);
+
+    switch (part.state) {
+        case 'input-streaming':
+        case 'input-available':
+            return (
+                <div className="flex items-center gap-2 text-sm text-muted-foreground py-1">
+                    <div className="w-2 h-2 rounded-full bg-blue-500 animate-pulse" />
+                    {message}
+                </div>
+            );
+        case 'output-available':
+            return (
+                <div className="flex items-center gap-2 text-sm text-green-600 dark:text-green-400 py-1">
+                    <div className="w-2 h-2 rounded-full bg-green-500" />
+                    ✓ {message}
+                </div>
+            );
+        case 'output-error':
+            return (
+                <div className="flex items-center gap-2 text-sm text-red-600 dark:text-red-400 py-1">
+                    <div className="w-2 h-2 rounded-full bg-red-500" />
+                    ✗ {message}
+                </div>
+            );
+        default:
+            return null;
+    }
+};
+
 interface WebsiteWidgetProps {
     orgId: string;
     chatId: string;
@@ -39,6 +103,11 @@ export function WebsiteWidget({ orgId, chatId }: WebsiteWidgetProps) {
         transport: new DefaultChatTransport({
             api: '/api/chat',
             prepareSendMessagesRequest: ({ messages, id }) => {
+                console.log('🚀 [Widget] Sending message:', {
+                    messageCount: messages.length,
+                    lastMessage: messages[messages.length - 1],
+                    chatId: id,
+                });
                 return {
                     body: {
                         message: messages[messages.length - 1],
@@ -47,6 +116,12 @@ export function WebsiteWidget({ orgId, chatId }: WebsiteWidgetProps) {
                 };
             },
         }),
+        onFinish: (message) => {
+            console.log('✅ [Widget] Message finished:', message);
+        },
+        onError: (error) => {
+            console.error('❌ [Widget] Error:', error);
+        },
     });
 
     const scrollToBottom = () => {
@@ -122,22 +197,40 @@ export function WebsiteWidget({ orgId, chatId }: WebsiteWidgetProps) {
                             <>
                                 <Conversation className="flex-1">
                                     <ConversationContent>
-                                        {messages.map((message) => (
-                                            <div key={message.id}>
-                                                {message.parts.map((part, i) => {
-                                                    if (part.type === 'text') {
-                                                        return (
-                                                            <Message key={`${message.id}-${i}`} from={message.role}>
-                                                                <MessageContent>
-                                                                    <Response>{part.text}</Response>
-                                                                </MessageContent>
-                                                            </Message>
-                                                        );
-                                                    }
-                                                    return null;
-                                                })}
-                                            </div>
-                                        ))}
+                                        {messages.map((message) => {
+                                            console.log('🔍 [Widget] Rendering message:', {
+                                                id: message.id,
+                                                role: message.role,
+                                                partsCount: message.parts?.length,
+                                                parts: message.parts,
+                                            });
+                                            return (
+                                                <Message key={message.id} from={message.role}>
+                                                    <MessageContent>
+                                                        {message.parts?.map((part: any, i: number) => {
+                                                            switch (part.type) {
+                                                                case 'text':
+                                                                    return (
+                                                                        <Response key={`${message.id}-${i}`}>
+                                                                            {part.text}
+                                                                        </Response>
+                                                                    );
+                                                                default:
+                                                                    if (part.type?.startsWith('tool-')) {
+                                                                        return (
+                                                                            <ToolDisplay
+                                                                                key={`${message.id}-${i}`}
+                                                                                part={part}
+                                                                            />
+                                                                        );
+                                                                    }
+                                                                    return null;
+                                                            }
+                                                        })}
+                                                    </MessageContent>
+                                                </Message>
+                                            );
+                                        })}
                                         {status === 'submitted' && <Loader />}
                                         <div ref={messagesEndRef} />
                                     </ConversationContent>
