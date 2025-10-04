@@ -35,6 +35,11 @@ export function WidgetChat({ orgId, chatId }: WidgetChatProps) {
         transport: new DefaultChatTransport({
             api: '/api/chat',
             prepareSendMessagesRequest: ({ messages, id }) => {
+                console.log('🚀 [Widget] Sending message:', {
+                    messageCount: messages.length,
+                    lastMessage: messages[messages.length - 1],
+                    chatId: id,
+                });
                 return {
                     body: {
                         message: messages[messages.length - 1],
@@ -43,6 +48,12 @@ export function WidgetChat({ orgId, chatId }: WidgetChatProps) {
                 };
             },
         }),
+        onFinish: (message) => {
+            console.log('✅ [Widget] Message finished:', message);
+        },
+        onError: (error) => {
+            console.error('❌ [Widget] Error:', error);
+        },
     });
 
     useEffect(() => {
@@ -93,22 +104,30 @@ export function WidgetChat({ orgId, chatId }: WidgetChatProps) {
             <div className="flex flex-col h-full">
                 <Conversation className="flex-1">
                     <ConversationContent>
-                        {messages.map((message) => (
-                            <div key={message.id}>
-                                {message.parts.map((part, i) => {
-                                    if (part.type === 'text') {
-                                        return (
-                                            <Message key={`${message.id}-${i}`} from={message.role}>
-                                                <MessageContent>
-                                                    <Response>{part.text}</Response>
-                                                </MessageContent>
-                                            </Message>
-                                        );
-                                    }
-                                    return null;
-                                })}
-                            </div>
-                        ))}
+                        {messages.map((message) => {
+                            console.log('🔍 [Widget] Rendering message:', {
+                                id: message.id,
+                                role: message.role,
+                                partsCount: message.parts?.length,
+                                parts: message.parts,
+                            });
+                            return (
+                                <div key={message.id}>
+                                    {message.parts.map((part, i) => {
+                                        if (part.type === 'text') {
+                                            return (
+                                                <Message key={`${message.id}-${i}`} from={message.role}>
+                                                    <MessageContent>
+                                                        <Response>{part.text}</Response>
+                                                    </MessageContent>
+                                                </Message>
+                                            );
+                                        }
+                                        return null;
+                                    })}
+                                </div>
+                            );
+                        })}
                         {status === 'submitted' && <Loader />}
                     </ConversationContent>
                     <ConversationScrollButton />

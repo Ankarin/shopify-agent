@@ -8,10 +8,15 @@ export const createListProductsTool = (shopifyClient: ShopifyClient) => tool({
         limit: z.number().min(1).max(50).default(10).describe('Number of products to return (default 10, max 50)'),
     }),
     execute: async ({ limit }) => {
+        console.log('🔍 [Tool: listProducts] Called with limit:', limit);
+        const startTime = Date.now();
+
         try {
             const products = await shopifyClient.getProducts(limit);
+            const duration = Date.now() - startTime;
 
             if (products.length === 0) {
+                console.log(`⚠️ [Tool: listProducts] No products found after ${duration}ms`);
                 return { success: false, message: 'No products found in the store.' };
             }
 
@@ -32,13 +37,20 @@ export const createListProductsTool = (shopifyClient: ShopifyClient) => tool({
                 };
             });
 
+            console.log(`✅ [Tool: listProducts] Success in ${duration}ms - Returning ${productList.length} products`);
+
             return {
                 success: true,
                 products: productList,
                 count: productList.length,
             };
         } catch (error: any) {
-            console.error('Error listing products:', error);
+            const duration = Date.now() - startTime;
+            console.error(`❌ [Tool: listProducts] Error after ${duration}ms:`, {
+                limit,
+                error: error.message,
+                stack: error.stack,
+            });
             return { success: false, message: `Failed to list products: ${error.message}` };
         }
     },

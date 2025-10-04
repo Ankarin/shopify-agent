@@ -8,14 +8,30 @@ export const createLookupOrderByNumberTool = (shopifyClient: ShopifyClient) => t
         orderNumber: z.string().describe('The order number, including the # symbol if provided'),
     }),
     execute: async ({ orderNumber }) => {
+        console.log('🔍 [Tool: lookupOrderByNumber] Called with order number:', orderNumber);
+        const startTime = Date.now();
+
         try {
             const order = await shopifyClient.getOrderByNumber(orderNumber);
+            const duration = Date.now() - startTime;
+
             if (!order) {
+                console.log(`⚠️ [Tool: lookupOrderByNumber] Order not found after ${duration}ms:`, orderNumber);
                 return { success: false, message: `Order ${orderNumber} not found.` };
             }
+
+            console.log(`✅ [Tool: lookupOrderByNumber] Success in ${duration}ms - Order found:`, {
+                orderNumber,
+                orderId: order.id,
+            });
             return { success: true, order: shopifyClient.formatOrderInfo(order) };
         } catch (error: any) {
-            console.error('Error looking up order by number:', error);
+            const duration = Date.now() - startTime;
+            console.error(`❌ [Tool: lookupOrderByNumber] Error after ${duration}ms:`, {
+                orderNumber,
+                error: error.message,
+                stack: error.stack,
+            });
             return { success: false, message: `Failed to lookup order: ${error.message}` };
         }
     },

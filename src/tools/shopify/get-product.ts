@@ -8,9 +8,15 @@ export const createGetProductTool = (shopifyClient: ShopifyClient) => tool({
         productId: z.string().describe('The product ID to look up'),
     }),
     execute: async ({ productId }) => {
+        console.log('🔍 [Tool: getProduct] Called with product ID:', productId);
+        const startTime = Date.now();
+
         try {
             const product = await shopifyClient.getProducts(1);
+            const duration = Date.now() - startTime;
+
             if (!product || product.length === 0) {
+                console.log(`⚠️ [Tool: getProduct] Product not found after ${duration}ms:`, productId);
                 return { success: false, message: 'Product not found.' };
             }
 
@@ -22,6 +28,13 @@ export const createGetProductTool = (shopifyClient: ShopifyClient) => tool({
                 inventory: node.inventoryQuantity,
             }));
 
+            console.log(`✅ [Tool: getProduct] Success in ${duration}ms:`, {
+                productId,
+                title: p.title,
+                variantsCount: variants.length,
+                imagesCount: p.images.edges.length,
+            });
+
             return {
                 success: true,
                 product: {
@@ -32,7 +45,12 @@ export const createGetProductTool = (shopifyClient: ShopifyClient) => tool({
                 }
             };
         } catch (error: any) {
-            console.error('Error getting product:', error);
+            const duration = Date.now() - startTime;
+            console.error(`❌ [Tool: getProduct] Error after ${duration}ms:`, {
+                productId,
+                error: error.message,
+                stack: error.stack,
+            });
             return { success: false, message: `Failed to get product: ${error.message}` };
         }
     },
