@@ -21,6 +21,8 @@ interface Organization {
     name: string;
     website: string;
     data: any;
+    shopifyDomain?: string;
+    shopifyAccessToken?: string;
     createdAt: Date;
     updatedAt: Date;
 }
@@ -39,6 +41,8 @@ export default function OrganizationPage({
         name: "",
         website: "",
         data: "",
+        shopifyDomain: "",
+        shopifyAccessToken: "",
     });
 
     useEffect(() => {
@@ -58,6 +62,8 @@ export default function OrganizationPage({
                     name: data.name,
                     website: data.website,
                     data: data.data || "",
+                    shopifyDomain: data.shopifyDomain || "",
+                    shopifyAccessToken: data.shopifyAccessToken || "",
                 });
             }
         } catch (error) {
@@ -149,6 +155,28 @@ export default function OrganizationPage({
                         </p>
                     </div>
 
+                    <div className="border-t pt-4">
+                        <h3 className="text-lg font-semibold mb-4">Shopify Integration</h3>
+                        <div className="space-y-4">
+                            <div>
+                                <h3 className="text-sm font-medium text-muted-foreground mb-1">
+                                    Shopify Domain
+                                </h3>
+                                <p className="text-lg">
+                                    {organization.shopifyDomain || "Not configured"}
+                                </p>
+                            </div>
+                            <div>
+                                <h3 className="text-sm font-medium text-muted-foreground mb-1">
+                                    Access Token
+                                </h3>
+                                <p className="text-lg font-mono text-xs">
+                                    {organization.shopifyAccessToken ? "••••••••••••••••" : "Not configured"}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
                     <div className="pt-4 border-t">
                         <p className="text-sm text-muted-foreground">
                             Organization ID: {organization.id}
@@ -200,9 +228,38 @@ export default function OrganizationPage({
                                         setFormData({ ...formData, data: e.target.value })
                                     }
                                     placeholder="Paste any relevant data here..."
-                                    rows={12}
+                                    rows={8}
                                     className="resize-none"
                                 />
+                            </div>
+
+                            <div className="border-t pt-4">
+                                <h3 className="text-sm font-medium mb-3">Shopify Integration (Optional)</h3>
+                                <div className="grid gap-4">
+                                    <div className="grid gap-2">
+                                        <Label htmlFor="shopifyDomain">Shopify Domain</Label>
+                                        <Input
+                                            id="shopifyDomain"
+                                            value={formData.shopifyDomain}
+                                            onChange={(e) =>
+                                                setFormData({ ...formData, shopifyDomain: e.target.value })
+                                            }
+                                            placeholder="your-store.myshopify.com"
+                                        />
+                                    </div>
+                                    <div className="grid gap-2">
+                                        <Label htmlFor="shopifyAccessToken">Shopify Access Token</Label>
+                                        <Input
+                                            id="shopifyAccessToken"
+                                            type="password"
+                                            value={formData.shopifyAccessToken}
+                                            onChange={(e) =>
+                                                setFormData({ ...formData, shopifyAccessToken: e.target.value })
+                                            }
+                                            placeholder="shpat_xxxxxxxxxxxxx"
+                                        />
+                                    </div>
+                                </div>
                             </div>
                         </div>
                         <DialogFooter>

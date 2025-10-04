@@ -34,7 +34,7 @@ export async function POST(req: Request) {
         }
 
         const body = await req.json();
-        const { name, website, data } = body;
+        const { name, website, data, shopifyDomain, shopifyAccessToken } = body;
 
         if (!name || !website) {
             return NextResponse.json(
@@ -49,6 +49,8 @@ export async function POST(req: Request) {
                 name,
                 website,
                 data: data || null,
+                shopifyDomain: shopifyDomain || null,
+                shopifyAccessToken: shopifyAccessToken || null,
             })
             .returning();
 

@@ -34,6 +34,8 @@ interface Organization {
   name: string;
   website: string;
   data: any;
+  shopifyDomain?: string;
+  shopifyAccessToken?: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -48,6 +50,8 @@ const Header = () => {
     name: "",
     website: "",
     data: "",
+    shopifyDomain: "",
+    shopifyAccessToken: "",
   });
   const router = useRouter();
   const params = useParams();
@@ -89,7 +93,7 @@ const Header = () => {
       const newOrg = await response.json();
       setOrganizations([newOrg, ...organizations]);
       setIsDialogOpen(false);
-      setFormData({ name: "", website: "", data: "" });
+      setFormData({ name: "", website: "", data: "", shopifyDomain: "", shopifyAccessToken: "" });
       router.push(`/${newOrg.id}`);
     } catch (error) {
       toast.error("Failed to create organization");
@@ -212,9 +216,38 @@ const Header = () => {
                     setFormData({ ...formData, data: e.target.value })
                   }
                   placeholder="Paste any relevant data here..."
-                  rows={12}
+                  rows={8}
                   className="resize-none"
                 />
+              </div>
+
+              <div className="border-t pt-4">
+                <h3 className="text-sm font-medium mb-3">Shopify Integration (Optional)</h3>
+                <div className="grid gap-4">
+                  <div className="grid gap-2">
+                    <Label htmlFor="shopifyDomain">Shopify Domain</Label>
+                    <Input
+                      id="shopifyDomain"
+                      value={formData.shopifyDomain}
+                      onChange={(e) =>
+                        setFormData({ ...formData, shopifyDomain: e.target.value })
+                      }
+                      placeholder="your-store.myshopify.com"
+                    />
+                  </div>
+                  <div className="grid gap-2">
+                    <Label htmlFor="shopifyAccessToken">Shopify Access Token</Label>
+                    <Input
+                      id="shopifyAccessToken"
+                      type="password"
+                      value={formData.shopifyAccessToken}
+                      onChange={(e) =>
+                        setFormData({ ...formData, shopifyAccessToken: e.target.value })
+                      }
+                      placeholder="shpat_xxxxxxxxxxxxx"
+                    />
+                  </div>
+                </div>
               </div>
             </div>
             <DialogFooter>

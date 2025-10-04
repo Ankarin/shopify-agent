@@ -51,7 +51,7 @@ export async function PATCH(
 
         const { orgId } = await params;
         const body = await req.json();
-        const { name, website, data } = body;
+        const { name, website, data, shopifyDomain, shopifyAccessToken } = body;
 
         if (!name || !website) {
             return NextResponse.json(
@@ -66,6 +66,8 @@ export async function PATCH(
                 name,
                 website,
                 data: data || null,
+                shopifyDomain: shopifyDomain || null,
+                shopifyAccessToken: shopifyAccessToken || null,
                 updatedAt: new Date(),
             })
             .where(eq(organizations.id, orgId))

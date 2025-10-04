@@ -4,18 +4,37 @@ import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/db";
 import { chats, organizations } from "@/db/schema";
 import { eq } from "drizzle-orm";
+import { ShopifyClient } from "@/lib/shopify/client";
+import {
+    createLookupOrderByEmailTool,
+    createLookupOrderByNumberTool,
+    createGetProductTool,
+    createListProductsTool
+} from "@/tools/shopify";
 
 const redis = new Redis({
     token: process.env.UPSTASH_REDIS_REST_TOKEN,
     url: process.env.UPSTASH_REDIS_REST_URL,
 });
 
+export const GET = async () => {
+    return NextResponse.json(
+        { status: 'ok', message: 'Chat API is running' },
+        {
+            status: 200,
+            headers: {
+                'Access-Control-Allow-Origin': '*',
+            },
+        }
+    );
+};
+
 export const OPTIONS = async () => {
     return new NextResponse(null, {
         status: 200,
         headers: {
             'Access-Control-Allow-Origin': '*',
-            'Access-Control-Allow-Methods': 'POST, OPTIONS',
+            'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
             'Access-Control-Allow-Headers': 'Content-Type',
         },
     });
@@ -59,12 +78,38 @@ Store Information:
 - Website: ${organization.website}
 ${organization.data ? `- Store Data: ${JSON.stringify(organization.data, null, 2)}` : ''}
 
-Your role is to help customers with questions about this store, its products, policies, and services. Be friendly, helpful, and knowledgeable about the store.`;
+Your role is to help customers with:
+1. FAQs and general store questions
+2. Product information (features, sizes, prices, availability)
+3. Order tracking and delivery questions
+4. Customer service inquiries
+
+Be friendly, helpful, and proactive. When customers ask about orders, products, or need help:
+- Ask for necessary information (email for orders, product details for questions)
+- Use the available tools to fetch accurate real-time data from Shopify
+- Provide clear, detailed responses with tracking numbers, delivery estimates, product details, etc.
+- If a customer asks "Where is my order?", ask for their email or order number to look it up`;
+
+    let tools = undefined;
+    if (organization.shopifyDomain && organization.shopifyAccessToken) {
+        const shopifyClient = new ShopifyClient({
+            domain: organization.shopifyDomain,
+            accessToken: organization.shopifyAccessToken,
+        });
+
+        tools = {
+            lookupOrderByEmail: createLookupOrderByEmailTool(shopifyClient),
+            lookupOrderByNumber: createLookupOrderByNumberTool(shopifyClient),
+            getProduct: createGetProductTool(shopifyClient),
+            listProducts: createListProductsTool(shopifyClient),
+        };
+    }
 
     const result = streamText({
-        model: 'openai/gpt-4.1-mini',
+        model: 'openai/gpt-5-mini',
         messages: convertToModelMessages(messages),
         system: systemPrompt,
+        tools,
     });
 
     const response = result.toUIMessageStreamResponse({
@@ -79,7 +124,7 @@ Your role is to help customers with questions about this store, its products, po
     });
 
     response.headers.set('Access-Control-Allow-Origin', '*');
-    response.headers.set('Access-Control-Allow-Methods', 'POST, OPTIONS');
+    response.headers.set('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
     response.headers.set('Access-Control-Allow-Headers', 'Content-Type');
 
     return response;

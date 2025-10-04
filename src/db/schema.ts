@@ -9,6 +9,9 @@ export const organizations = pgTable("organizations", {
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
   data: json("data"),
   website: text("website").notNull(),
+  shopifyDomain: text("shopify_domain"),
+  shopifyAccessToken: text("shopify_access_token"),
+  shopifyApiKey: text("shopify_api_key"),
 });
 
 export const chats = pgTable("chats", {
