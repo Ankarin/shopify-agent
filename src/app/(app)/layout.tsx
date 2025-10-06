@@ -12,7 +12,7 @@ export default function Layout({
             <AppSidebar />
             <main className="flex-1 flex h-screen w-full flex-col overflow-hidden">
                 <Header />
-                <div className="flex-1 overflow-hidden">{children}</div>
+                <div className="flex-1 overflow-auto">{children}</div>
             </main>
         </SidebarProvider>
     );
