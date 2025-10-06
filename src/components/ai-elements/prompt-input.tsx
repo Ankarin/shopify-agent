@@ -667,14 +667,16 @@ export const PromptInputSubmit = ({
   children,
   ...props
 }: PromptInputSubmitProps) => {
-  let Icon = <SendIcon className="size-4" />;
+  const iconSize = size === "default" ? "size-5" : "size-4";
+
+  let Icon = <SendIcon className={iconSize} />;
 
   if (status === "submitted") {
-    Icon = <Loader2Icon className="size-4 animate-spin" />;
+    Icon = <Loader2Icon className={`${iconSize} animate-spin`} />;
   } else if (status === "streaming") {
-    Icon = <SquareIcon className="size-4" />;
+    Icon = <SquareIcon className={iconSize} />;
   } else if (status === "error") {
-    Icon = <XIcon className="size-4" />;
+    Icon = <XIcon className={iconSize} />;
   }
 
   return (

@@ -26,7 +26,7 @@ export default function ChatPage({
 
     return (
         <div className="relative h-full">
-            <div className="absolute top-6 right-6 z-[60]">
+            <div className="absolute top-6 left-6 z-[60]">
                 <Button
                     variant="default"
                     onClick={handlePreview}

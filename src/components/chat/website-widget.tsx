@@ -63,23 +63,23 @@ const ToolDisplay = ({ part }: { part: any }) => {
         case 'input-streaming':
         case 'input-available':
             return (
-                <div className="flex items-center gap-2 text-sm text-muted-foreground py-1">
+                <div className="flex items-center gap-2.5 text-xs text-muted-foreground py-1 px-2 bg-blue-50 dark:bg-blue-950/30 rounded-lg">
                     <div className="w-2 h-2 rounded-full bg-blue-500 animate-pulse" />
-                    {message}
+                    <span className="font-medium">{message}</span>
                 </div>
             );
         case 'output-available':
             return (
-                <div className="flex items-center gap-2 text-sm text-green-600 dark:text-green-400 py-1">
+                <div className="flex items-center gap-2.5 text-xs text-green-700 dark:text-green-400 py-1 px-2 bg-green-50 dark:bg-green-950/30 rounded-lg">
                     <div className="w-2 h-2 rounded-full bg-green-500" />
-                    ✓ {message}
+                    <span className="font-medium">✓ {message}</span>
                 </div>
             );
         case 'output-error':
             return (
-                <div className="flex items-center gap-2 text-sm text-red-600 dark:text-red-400 py-1">
+                <div className="flex items-center gap-2.5 text-xs text-red-700 dark:text-red-400 py-1 px-2 bg-red-50 dark:bg-red-950/30 rounded-lg">
                     <div className="w-2 h-2 rounded-full bg-red-500" />
-                    ✗ {message}
+                    <span className="font-medium">✗ {message}</span>
                 </div>
             );
         default:
@@ -176,19 +176,26 @@ export function WebsiteWidget({ orgId, chatId }: WebsiteWidgetProps) {
     return (
         <>
             {isOpen && (
-                <div className="fixed bottom-24 right-6 w-96 h-[600px] bg-background border rounded-lg shadow-2xl flex flex-col z-50">
-                    <div className="flex items-center justify-between p-4 border-b">
-                        <h3 className="font-semibold">Chat Support</h3>
+                <div className="fixed bottom-24 right-6 w-[420px] h-[650px] bg-background border rounded-2xl shadow-2xl flex flex-col z-50 animate-in slide-in-from-bottom-4 duration-300">
+                    <div className="flex items-center justify-between p-4 border-b bg-gradient-to-r from-primary/5 to-primary/10 rounded-t-2xl">
+                        <div className="flex items-center gap-2.5">
+                            <div className="w-2.5 h-2.5 rounded-full bg-green-500 animate-pulse" />
+                            <div>
+                                <h3 className="font-semibold text-base">Chat Support</h3>
+                                <p className="text-xs text-muted-foreground">We reply instantly</p>
+                            </div>
+                        </div>
                         <Button
                             variant="ghost"
-                            size="sm"
+                            size="icon"
+                            className="h-7 w-7 rounded-full hover:bg-background/80"
                             onClick={() => setIsOpen(false)}
                         >
-                            <X className="h-4 w-4" />
+                            <X className="h-3.5 w-3.5" />
                         </Button>
                     </div>
 
-                    <div className="flex-1 overflow-hidden flex flex-col p-4">
+                    <div className="flex-1 overflow-hidden flex flex-col p-5 bg-gradient-to-b from-background to-muted/20">
                         {!isInitialized ? (
                             <div className="flex items-center justify-center h-full">
                                 <Loader />
@@ -237,19 +244,25 @@ export function WebsiteWidget({ orgId, chatId }: WebsiteWidgetProps) {
                                     <ConversationScrollButton />
                                 </Conversation>
 
-                                <PromptInput onSubmit={handleSubmit} className="mt-4" globalDrop multiple>
+                                <PromptInput onSubmit={handleSubmit} className="mt-4 bg-background/50 backdrop-blur-sm border rounded-xl shadow-sm" globalDrop multiple>
                                     <PromptInputBody>
                                         <PromptInputAttachments>
                                             {(attachment) => <PromptInputAttachment data={attachment} />}
                                         </PromptInputAttachments>
-                                        <div className="flex items-end gap-2">
+                                        <div className="flex items-center gap-2 px-2">
                                             <PromptInputTextarea
                                                 onChange={(e) => setInput(e.target.value)}
                                                 value={input}
-                                                className="flex-1"
+                                                className="flex-1 border-0 focus-visible:ring-0 bg-transparent resize-none"
+                                                placeholder="What would you like to know?"
                                                 disabled={status === 'submitted' || status === 'streaming'}
                                             />
-                                            <PromptInputSubmit disabled={!input || status === 'submitted' || status === 'streaming'} status={status} />
+                                            <PromptInputSubmit
+                                                disabled={!input || status === 'submitted' || status === 'streaming'}
+                                                status={status}
+                                                size="default"
+                                                className="h-10 w-10 shrink-0"
+                                            />
                                         </div>
                                     </PromptInputBody>
                                 </PromptInput>
@@ -262,7 +275,7 @@ export function WebsiteWidget({ orgId, chatId }: WebsiteWidgetProps) {
             <Button
                 onClick={() => setIsOpen(!isOpen)}
                 size="lg"
-                className="fixed bottom-6 right-6 h-14 w-14 rounded-full shadow-2xl z-50"
+                className="fixed bottom-4 right-6 h-16 w-16 rounded-full shadow-2xl hover:shadow-3xl z-50 transition-all duration-300 hover:scale-110"
             >
                 {isOpen ? <X className="h-6 w-6" /> : <MessageSquare className="h-6 w-6" />}
             </Button>
