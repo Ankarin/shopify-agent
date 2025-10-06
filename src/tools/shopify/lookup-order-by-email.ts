@@ -6,13 +6,14 @@ export const createLookupOrderByEmailTool = (shopifyClient: ShopifyClient) => to
     description: 'Look up orders for a customer using their email address. Use this when a customer asks about their order and provides their email.',
     inputSchema: z.object({
         email: z.string().email().describe('The customer email address'),
+        limit: z.number().min(1).max(50).default(10).optional().describe('Number of orders to return (default 10, max 50). Use lower numbers for recent orders.'),
     }),
-    execute: async ({ email }) => {
-        console.log('🔍 [Tool: lookupOrderByEmail] Called with email:', email);
+    execute: async ({ email, limit = 10 }) => {
+        console.log('🔍 [Tool: lookupOrderByEmail] Called with email:', email, 'limit:', limit);
         const startTime = Date.now();
 
         try {
-            const orders = await shopifyClient.getOrderByEmail(email);
+            const orders = await shopifyClient.getOrderByEmail(email, limit);
             const duration = Date.now() - startTime;
 
             console.log(`📦 [Tool: lookupOrderByEmail] Found ${orders.length} orders in ${duration}ms`);
@@ -29,6 +30,7 @@ export const createLookupOrderByEmailTool = (shopifyClient: ShopifyClient) => to
             const duration = Date.now() - startTime;
             console.error(`❌ [Tool: lookupOrderByEmail] Error after ${duration}ms:`, {
                 email,
+                limit,
                 error: error.message,
                 stack: error.stack,
             });

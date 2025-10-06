@@ -5,7 +5,7 @@ import { ShopifyClient } from "@/lib/shopify/client";
 export const createListProductsTool = (shopifyClient: ShopifyClient) => tool({
     description: 'Get a list of available products in the store. Use this when a customer asks about what products are available, wants to browse, or asks general product questions.',
     inputSchema: z.object({
-        limit: z.number().min(1).max(50).default(10).describe('Number of products to return (default 10, max 50)'),
+        limit: z.number().min(1).max(100).default(20).describe('Number of products to return (default 20, max 100)'),
     }),
     execute: async ({ limit }) => {
         console.log('🔍 [Tool: listProducts] Called with limit:', limit);

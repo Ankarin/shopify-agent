@@ -1,5 +1,5 @@
 import { Redis } from "@upstash/redis";
-import { convertToModelMessages, createIdGenerator, streamText, UIMessage } from "ai";
+import { convertToModelMessages, createIdGenerator, streamText, UIMessage, stepCountIs } from "ai";
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/db";
 import { chats, organizations } from "@/db/schema";
@@ -88,7 +88,9 @@ Be friendly, helpful, and proactive. When customers ask about orders, products, 
 - Ask for necessary information (email for orders, product details for questions)
 - Use the available tools to fetch accurate real-time data from Shopify
 - Provide clear, detailed responses with tracking numbers, delivery estimates, product details, etc.
-- If a customer asks "Where is my order?", ask for their email or order number to look it up`;
+- If a customer asks "Where is my order?", ask for their email or order number to look it up
+- When you retrived some data from Shopify, don't just stop, continue the conversation with the customer and explain what you found.
+`;
 
     let tools = undefined;
     if (organization.shopifyDomain && organization.shopifyAccessToken) {
@@ -117,6 +119,7 @@ Be friendly, helpful, and proactive. When customers ask about orders, products, 
         messages: convertToModelMessages(messages),
         system: systemPrompt,
         tools,
+        stopWhen: stepCountIs(10),
     });
 
     const response = result.toUIMessageStreamResponse({
