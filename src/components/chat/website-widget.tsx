@@ -64,7 +64,7 @@ export function WebsiteWidget({ orgId, chatId, customization }: WebsiteWidgetPro
   // Defaults for customization (use props or loaded from API)
   const activeCustomization = customization || loadedCustomization;
   
-  const config: Required<WidgetCustomization> = {
+  const config: Required<Omit<WidgetCustomization, "logoKey">> = {
     primaryColor: activeCustomization?.primaryColor || DEFAULT_WIDGET_CONFIG.primaryColor,
     backgroundColor: activeCustomization?.backgroundColor || DEFAULT_WIDGET_CONFIG.backgroundColor,
     secondaryColor: activeCustomization?.secondaryColor || DEFAULT_WIDGET_CONFIG.secondaryColor,
@@ -130,14 +130,14 @@ export function WebsiteWidget({ orgId, chatId, customization }: WebsiteWidgetPro
     initializeChat();
   }, [orgId, chatId, setMessages]);
 
-  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
+  // biome-ignore lint/correctness/useExhaustiveDependencies: scrollToBottom is stable
   useEffect(() => {
     if (isInitialized && isOpen) {
       setTimeout(scrollToBottom, 100);
     }
   }, [isInitialized, isOpen]);
 
-  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
+  // biome-ignore lint/correctness/useExhaustiveDependencies: scrollToBottom is stable
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
