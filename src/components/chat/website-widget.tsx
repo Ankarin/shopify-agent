@@ -23,70 +23,6 @@ import { Loader } from '@/components/ai-elements/loader';
 import { Button } from '@/components/ui/button';
 import { MessageSquare, X } from 'lucide-react';
 
-const ToolDisplay = ({ part }: { part: any }) => {
-    const toolName = part.type?.replace('tool-', '');
-
-    const getToolMessage = (toolName: string, state: string) => {
-        const messages: Record<string, Record<string, string>> = {
-            lookupOrderByEmail: {
-                'input-streaming': 'Looking up orders by email...',
-                'input-available': 'Looking up orders by email...',
-                'output-available': 'Found orders',
-                'output-error': 'Failed to lookup orders',
-            },
-            lookupOrderByNumber: {
-                'input-streaming': 'Looking up order...',
-                'input-available': 'Looking up order...',
-                'output-available': 'Found order',
-                'output-error': 'Failed to lookup order',
-            },
-            getProduct: {
-                'input-streaming': 'Getting product details...',
-                'input-available': 'Getting product details...',
-                'output-available': 'Found product',
-                'output-error': 'Failed to get product',
-            },
-            listProducts: {
-                'input-streaming': 'Getting product list...',
-                'input-available': 'Getting product list...',
-                'output-available': 'Found products',
-                'output-error': 'Failed to list products',
-            },
-        };
-
-        return messages[toolName]?.[state] || `${toolName} ${state}`;
-    };
-
-    const message = getToolMessage(toolName, part.state);
-
-    switch (part.state) {
-        case 'input-streaming':
-        case 'input-available':
-            return (
-                <div className="flex items-center gap-2.5 text-xs text-muted-foreground py-1 px-2 bg-blue-50 dark:bg-blue-950/30 rounded-lg">
-                    <div className="w-2 h-2 rounded-full bg-blue-500 animate-pulse" />
-                    <span className="font-medium">{message}</span>
-                </div>
-            );
-        case 'output-available':
-            return (
-                <div className="flex items-center gap-2.5 text-xs text-green-700 dark:text-green-400 py-1 px-2 bg-green-50 dark:bg-green-950/30 rounded-lg">
-                    <div className="w-2 h-2 rounded-full bg-green-500" />
-                    <span className="font-medium">✓ {message}</span>
-                </div>
-            );
-        case 'output-error':
-            return (
-                <div className="flex items-center gap-2.5 text-xs text-red-700 dark:text-red-400 py-1 px-2 bg-red-50 dark:bg-red-950/30 rounded-lg">
-                    <div className="w-2 h-2 rounded-full bg-red-500" />
-                    <span className="font-medium">✗ {message}</span>
-                </div>
-            );
-        default:
-            return null;
-    }
-};
-
 interface WebsiteWidgetProps {
     orgId: string;
     chatId: string;
@@ -223,14 +159,6 @@ export function WebsiteWidget({ orgId, chatId }: WebsiteWidgetProps) {
                                                                         </Response>
                                                                     );
                                                                 default:
-                                                                    if (part.type?.startsWith('tool-')) {
-                                                                        return (
-                                                                            <ToolDisplay
-                                                                                key={`${message.id}-${i}`}
-                                                                                part={part}
-                                                                            />
-                                                                        );
-                                                                    }
                                                                     return null;
                                                             }
                                                         })}
