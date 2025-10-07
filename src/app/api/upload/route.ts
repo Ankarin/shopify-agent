@@ -56,28 +56,52 @@ export async function POST(request: NextRequest) {
         { status: 500 }
       );
     }
-
-    // Generate signed URL valid for 1 day (86400 seconds)
-    const { data: signedUrlData, error: signedUrlError } = await supabaseClient.storage
-      .from(bucketName)
-      .createSignedUrl(uniqueFilename, 86400); // 1 day = 86400 seconds
-
-    if (signedUrlError || !signedUrlData) {
-      console.error('Error creating signed URL:', signedUrlError);
-      return NextResponse.json(
-        { error: 'Failed to generate signed URL' },
-        { status: 500 }
-      );
-    }
     
     return NextResponse.json({ 
-      url: signedUrlData.signedUrl,
-      filename: uniqueFilename 
+      key: uniqueFilename
     });
   } catch (error) {
     console.error('Error uploading file:', error);
     return NextResponse.json(
       { error: 'Failed to upload file' },
+      { status: 500 }
+    );
+  }
+}
+
+export async function DELETE(request: NextRequest) {
+  try {
+    const body = await request.json();
+    const { filename } = body;
+
+    if (!filename) {
+      return NextResponse.json(
+        { error: 'No filename provided' },
+        { status: 400 }
+      );
+    }
+
+    // Delete file from Supabase Storage
+    const { error } = await supabaseClient.storage
+      .from(bucketName)
+      .remove([filename]);
+
+    if (error) {
+      console.error('Supabase delete error:', error);
+      return NextResponse.json(
+        { error: 'Failed to delete file from storage' },
+        { status: 500 }
+      );
+    }
+
+    return NextResponse.json({ 
+      success: true,
+      message: 'File deleted successfully' 
+    });
+  } catch (error) {
+    console.error('Error deleting file:', error);
+    return NextResponse.json(
+      { error: 'Failed to delete file' },
       { status: 500 }
     );
   }

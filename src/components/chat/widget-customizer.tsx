@@ -71,8 +71,27 @@ export function WidgetCustomizer({ orgId, chat }: WidgetCustomizerProps) {
     try {
       const finalSettings = { ...settings };
 
-      // Upload logo file if selected
       if (selectedLogoFile) {
+        // Delete old logo file from storage if exists
+        if (settings.logoKey) {
+          try {
+            const deleteResponse = await fetch("/api/upload", {
+              method: "DELETE",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({ filename: settings.logoKey }),
+            });
+
+            if (!deleteResponse.ok) {
+              console.warn("Failed to delete old logo file");
+            }
+          } catch (deleteError) {
+            console.warn("Error deleting old logo:", deleteError);
+          }
+        }
+
+        // Upload new logo file
         const formData = new FormData();
         formData.append("file", selectedLogoFile);
 
@@ -83,7 +102,7 @@ export function WidgetCustomizer({ orgId, chat }: WidgetCustomizerProps) {
 
         if (uploadResponse.ok) {
           const uploadData = await uploadResponse.json();
-          finalSettings.logoUrl = uploadData.url;
+          finalSettings.logoKey = uploadData.key;
         } else {
           const error = await uploadResponse.json();
           setSavedMessage(`❌ Failed to upload logo: ${error.error}`);
@@ -105,9 +124,10 @@ export function WidgetCustomizer({ orgId, chat }: WidgetCustomizerProps) {
       );
 
       if (response.ok) {
-        setSettings(finalSettings); // Update local state with uploaded logo URL
-        setSelectedLogoFile(null); // Clear selected file
-        setLogoPreviewUrl(null); // Clear preview
+        const savedData = await response.json();
+        setSettings(savedData);
+        setSelectedLogoFile(null);
+        setLogoPreviewUrl(null);
         setSavedMessage("✅ Settings saved successfully!");
         setTimeout(() => setSavedMessage(""), 3000);
       } else {

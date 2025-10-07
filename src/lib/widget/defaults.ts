@@ -6,6 +6,7 @@ export interface WidgetCustomization {
   textSecondaryColor?: string;
   borderColor?: string;
   
+  logoKey?: string;
   logoUrl?: string;
   logoWidth?: number;
   logoHeight?: number;
@@ -32,6 +33,7 @@ export const DEFAULT_WIDGET_TEXTS = {
 } as const;
 
 export const DEFAULT_WIDGET_LOGO = {
+  logoKey: "",
   logoUrl: "",
   logoWidth: 40,
   logoHeight: 40,

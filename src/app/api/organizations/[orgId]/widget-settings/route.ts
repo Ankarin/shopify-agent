@@ -28,19 +28,18 @@ export async function GET(
 
     const setting = settings[0];
 
-    // If logoUrl exists and contains a filename, generate a fresh signed URL
-    if (setting.logoUrl) {
-      // Extract filename from URL (works for both old public URLs and signed URLs)
-      const urlParts = setting.logoUrl.split('/');
-      const filename = urlParts[urlParts.length - 1].split('?')[0]; // Remove query params if present
-      
-      // Generate new signed URL valid for 1 day
+    // If logoKey exists, generate a fresh signed URL
+    if (setting.logoKey) {
       const { data: signedUrlData, error: signedUrlError } = await supabaseClient.storage
         .from(bucketName)
-        .createSignedUrl(filename, 86400); // 1 day = 86400 seconds
+        .createSignedUrl(setting.logoKey, 86400); // 1 day = 86400 seconds
 
       if (!signedUrlError && signedUrlData) {
-        setting.logoUrl = signedUrlData.signedUrl;
+        // Add logoUrl to response (not stored in DB, generated on-the-fly)
+        return NextResponse.json({
+          ...setting,
+          logoUrl: signedUrlData.signedUrl,
+        });
       }
     }
 

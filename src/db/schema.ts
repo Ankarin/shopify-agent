@@ -34,7 +34,7 @@ export const widgetSettings = pgTable("widget_settings", {
   textSecondaryColor: varchar("text_secondary_color", { length: 7 }).default(DEFAULT_WIDGET_CONFIG.textSecondaryColor),
   borderColor: varchar("border_color", { length: 7 }).default(DEFAULT_WIDGET_CONFIG.borderColor),
   
-  logoUrl: text("logo_url"),
+  logoKey: text("logo_key"),
   logoWidth: integer("logo_width").default(DEFAULT_WIDGET_CONFIG.logoWidth),
   logoHeight: integer("logo_height").default(DEFAULT_WIDGET_CONFIG.logoHeight),
   logoBorderRadius: integer("logo_border_radius").default(DEFAULT_WIDGET_CONFIG.logoBorderRadius),

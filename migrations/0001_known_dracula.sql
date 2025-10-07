@@ -1,0 +1,1 @@
+ALTER TABLE "widget_settings" RENAME COLUMN "logo_url" TO "logo_key";
