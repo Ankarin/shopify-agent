@@ -15,6 +15,7 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Loader } from "@/components/ai-elements/loader";
 import { WebsiteWidget } from "@/components/chat/website-widget";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import {
   DEFAULT_WIDGET_CONFIG,
   type WidgetCustomization,
@@ -42,6 +43,9 @@ export function WidgetCustomizer({ orgId, chat }: WidgetCustomizerProps) {
   const [savedMessage, setSavedMessage] = useState("");
   const [selectedLogoFile, setSelectedLogoFile] = useState<File | null>(null);
   const [logoPreviewUrl, setLogoPreviewUrl] = useState<string | null>(null);
+  
+  const [showResetDialog, setShowResetDialog] = useState(false);
+  const [showRemoveLogoDialog, setShowRemoveLogoDialog] = useState(false);
 
   // Load settings from API
   useEffect(() => {
@@ -149,6 +153,116 @@ export function WidgetCustomizer({ orgId, chat }: WidgetCustomizerProps) {
       ...prev,
       [key]: value,
     }));
+  };
+
+  const handleReset = async () => {
+    setIsSaving(true);
+    setSavedMessage("");
+
+    try {
+      // Delete logo file from storage if exists
+      if (settings.logoKey) {
+        try {
+          const deleteResponse = await fetch("/api/upload", {
+            method: "DELETE",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ filename: settings.logoKey }),
+          });
+
+          if (!deleteResponse.ok) {
+            console.warn("Failed to delete logo file");
+          }
+        } catch (deleteError) {
+          console.warn("Error deleting logo:", deleteError);
+        }
+      }
+
+      // Reset to default settings
+      const response = await fetch(
+        `/api/organizations/${orgId}/widget-settings`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(DEFAULT_WIDGET_CONFIG),
+        },
+      );
+
+      if (response.ok) {
+        const savedData = await response.json();
+        setSettings(savedData);
+        setSelectedLogoFile(null);
+        setLogoPreviewUrl(null);
+        setSavedMessage("✅ Settings reset to defaults successfully!");
+        setTimeout(() => setSavedMessage(""), 3000);
+      } else {
+        setSavedMessage("❌ Failed to reset settings");
+      }
+    } catch (error) {
+      console.error("Failed to reset settings:", error);
+      setSavedMessage("❌ Failed to reset settings");
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleRemoveLogo = async () => {
+    setIsSaving(true);
+    setSavedMessage("");
+
+    try {
+      // Delete logo file from storage if exists
+      if (settings.logoKey) {
+        const deleteResponse = await fetch("/api/upload", {
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ filename: settings.logoKey }),
+        });
+
+        if (!deleteResponse.ok) {
+          console.warn("Failed to delete logo file");
+        }
+      }
+
+      // Update settings to remove logo
+      const updatedSettings = {
+        ...settings,
+        logoKey: "",
+        logoUrl: "",
+      };
+
+      const response = await fetch(
+        `/api/organizations/${orgId}/widget-settings`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(updatedSettings),
+        },
+      );
+
+      if (response.ok) {
+        const savedData = await response.json();
+        setSettings(savedData);
+        setSelectedLogoFile(null);
+        setLogoPreviewUrl(null);
+        setSavedMessage("✅ Logo removed successfully!");
+        setTimeout(() => setSavedMessage(""), 3000);
+      } else {
+        setSavedMessage("❌ Failed to remove logo");
+      }
+    } catch (error) {
+      console.error("Failed to remove logo:", error);
+      setSavedMessage("❌ Failed to remove logo");
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const handleLogoSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -379,7 +493,19 @@ export function WidgetCustomizer({ orgId, chat }: WidgetCustomizerProps) {
 
                 {(logoPreviewUrl || settings.logoUrl) && (
                   <div className="space-y-2">
-                    <Label>Logo Preview</Label>
+                    <div className="flex items-center justify-between">
+                      <Label>Logo Preview</Label>
+                      {settings.logoUrl && !logoPreviewUrl && (
+                        <Button
+                          onClick={() => setShowRemoveLogoDialog(true)}
+                          disabled={isSaving}
+                          variant="destructive"
+                          size="sm"
+                        >
+                          Remove Logo
+                        </Button>
+                      )}
+                    </div>
                     <div className="border rounded-lg p-4 bg-gray-50 flex items-center justify-center">
                       <Image
                         src={logoPreviewUrl || settings.logoUrl || ""}
@@ -502,9 +628,18 @@ export function WidgetCustomizer({ orgId, chat }: WidgetCustomizerProps) {
             onClick={handleSave}
             disabled={isSaving}
             size="lg"
-            className="w-full"
+            className="flex-1"
           >
             {isSaving ? "Saving..." : "Save Settings"}
+          </Button>
+          <Button
+            onClick={() => setShowResetDialog(true)}
+            disabled={isSaving}
+            size="lg"
+            variant="outline"
+            className="flex-1"
+          >
+            Reset to Defaults
           </Button>
         </div>
 
@@ -524,6 +659,29 @@ export function WidgetCustomizer({ orgId, chat }: WidgetCustomizerProps) {
           }}
         />
       </div>
+
+      {/* Confirm Dialogs */}
+      <ConfirmDialog
+        open={showResetDialog}
+        onOpenChange={setShowResetDialog}
+        onConfirm={handleReset}
+        title="Reset to Defaults"
+        description="Are you sure you want to reset all settings to default? This will delete your logo and restore all default values. This action cannot be undone."
+        confirmText="Reset"
+        cancelText="Cancel"
+        variant="destructive"
+      />
+
+      <ConfirmDialog
+        open={showRemoveLogoDialog}
+        onOpenChange={setShowRemoveLogoDialog}
+        onConfirm={handleRemoveLogo}
+        title="Remove Logo"
+        description="Are you sure you want to remove the logo? This will permanently delete the logo file from storage."
+        confirmText="Remove"
+        cancelText="Cancel"
+        variant="destructive"
+      />
     </div>
   );
 }
