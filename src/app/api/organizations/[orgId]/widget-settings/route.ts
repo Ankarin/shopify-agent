@@ -6,7 +6,7 @@ import { eq } from 'drizzle-orm';
 import { DEFAULT_WIDGET_CONFIG } from '@/lib/widget/defaults';
 import { supabaseClient } from '@/configs/supabase-client';
 
-const bucketName = process.env.NEXT_PUBLIC_SUPABASE_STORAGE_BUCKET || 'widgets';
+const bucketName = process.env.SUPABASE_STORAGE_BUCKET || 'widgets';
 
 export async function GET(
   _request: NextRequest,

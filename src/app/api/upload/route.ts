@@ -3,7 +3,7 @@ import { NextResponse } from 'next/server';
 import { randomUUID } from 'crypto';
 import { supabaseClient } from '@/configs/supabase-client';
 
-const bucketName = process.env.NEXT_PUBLIC_SUPABASE_STORAGE_BUCKET || 'widgets';
+const bucketName = process.env.SUPABASE_STORAGE_BUCKET || 'widgets';
 
 export async function POST(request: NextRequest) {
   try {
