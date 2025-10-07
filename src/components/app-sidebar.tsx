@@ -13,9 +13,9 @@ import {
     SidebarMenuButton,
 } from "@/components/ui/sidebar"
 import { Button } from "@/components/ui/button"
-import { Plus, MessageSquare, LayoutDashboard } from "lucide-react"
+import { Plus, MessageSquare, LayoutDashboard, Palette } from "lucide-react"
 import { useState, useEffect } from "react"
-import { useRouter, useParams } from "next/navigation"
+import { useRouter, useParams, usePathname } from "next/navigation"
 import { toast } from "sonner"
 
 interface Chat {
@@ -29,8 +29,10 @@ export function AppSidebar() {
     const [chats, setChats] = useState<Chat[]>([])
     const router = useRouter()
     const params = useParams()
+    const pathname = usePathname()
     const currentOrgId = params?.orgId as string | undefined
 
+    // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
     useEffect(() => {
         if (currentOrgId) {
             fetchChats(currentOrgId)
@@ -90,10 +92,19 @@ export function AppSidebar() {
                                     <SidebarMenuItem>
                                         <SidebarMenuButton
                                             onClick={() => router.push(`/${currentOrgId}`)}
-                                            isActive={!params?.chatId}
+                                            isActive={pathname === `/${currentOrgId}`}
                                         >
                                             <LayoutDashboard className="h-4 w-4" />
                                             <span>Manage Org</span>
+                                        </SidebarMenuButton>
+                                    </SidebarMenuItem>
+                                    <SidebarMenuItem>
+                                        <SidebarMenuButton
+                                            onClick={() => router.push(`/${currentOrgId}/widget-settings`)}
+                                            isActive={pathname === `/${currentOrgId}/widget-settings`}
+                                        >
+                                            <Palette className="h-4 w-4" />
+                                            <span>Widget Settings</span>
                                         </SidebarMenuButton>
                                     </SidebarMenuItem>
                                 </SidebarMenu>

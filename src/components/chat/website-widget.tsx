@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import Image from "next/image";
 import { useChat } from "@ai-sdk/react";
 import { DefaultChatTransport } from "ai";
 import {
@@ -22,10 +23,12 @@ import { Response } from "@/components/ai-elements/response";
 import { Loader } from "@/components/ai-elements/loader";
 import { Button } from "@/components/ui/button";
 import { MessageSquare, X } from "lucide-react";
+import { DEFAULT_WIDGET_CONFIG, type WidgetCustomization } from "@/lib/widget/defaults";
 
 interface WebsiteWidgetProps {
   orgId: string;
   chatId: string;
+  customization?: WidgetCustomization;
 }
 
 interface MessagePart {
@@ -33,11 +36,49 @@ interface MessagePart {
   text?: string;
 }
 
-export function WebsiteWidget({ orgId, chatId }: WebsiteWidgetProps) {
+export function WebsiteWidget({ orgId, chatId, customization }: WebsiteWidgetProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [input, setInput] = useState("");
   const [isInitialized, setIsInitialized] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const [loadedCustomization, setLoadedCustomization] = useState<WidgetCustomization | null>(null);
+
+  // Load customization from API if not provided via props
+  useEffect(() => {
+    if (!customization) {
+      const fetchCustomization = async () => {
+        try {
+          const response = await fetch(`/api/organizations/${orgId}/widget-settings`);
+          if (response.ok) {
+            const data = await response.json();
+            setLoadedCustomization(data);
+          }
+        } catch (error) {
+          console.error("Failed to load widget customization:", error);
+        }
+      };
+      fetchCustomization();
+    }
+  }, [orgId, customization]);
+
+  // Defaults for customization (use props or loaded from API)
+  const activeCustomization = customization || loadedCustomization;
+  
+  const config: Required<WidgetCustomization> = {
+    primaryColor: activeCustomization?.primaryColor || DEFAULT_WIDGET_CONFIG.primaryColor,
+    backgroundColor: activeCustomization?.backgroundColor || DEFAULT_WIDGET_CONFIG.backgroundColor,
+    secondaryColor: activeCustomization?.secondaryColor || DEFAULT_WIDGET_CONFIG.secondaryColor,
+    textPrimaryColor: activeCustomization?.textPrimaryColor || DEFAULT_WIDGET_CONFIG.textPrimaryColor,
+    textSecondaryColor: activeCustomization?.textSecondaryColor || DEFAULT_WIDGET_CONFIG.textSecondaryColor,
+    borderColor: activeCustomization?.borderColor || DEFAULT_WIDGET_CONFIG.borderColor,
+    logoUrl: activeCustomization?.logoUrl || DEFAULT_WIDGET_CONFIG.logoUrl,
+    logoWidth: activeCustomization?.logoWidth || DEFAULT_WIDGET_CONFIG.logoWidth,
+    logoHeight: activeCustomization?.logoHeight || DEFAULT_WIDGET_CONFIG.logoHeight,
+    logoBorderRadius: activeCustomization?.logoBorderRadius || DEFAULT_WIDGET_CONFIG.logoBorderRadius,
+    headerTitle: activeCustomization?.headerTitle || DEFAULT_WIDGET_CONFIG.headerTitle,
+    headerSubtitle: activeCustomization?.headerSubtitle || DEFAULT_WIDGET_CONFIG.headerSubtitle,
+    inputPlaceholder: activeCustomization?.inputPlaceholder || DEFAULT_WIDGET_CONFIG.inputPlaceholder,
+  };
 
   const { messages, sendMessage, status, setMessages } = useChat({
     id: chatId,
@@ -89,12 +130,14 @@ export function WebsiteWidget({ orgId, chatId }: WebsiteWidgetProps) {
     initializeChat();
   }, [orgId, chatId, setMessages]);
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
   useEffect(() => {
     if (isInitialized && isOpen) {
       setTimeout(scrollToBottom, 100);
     }
   }, [isInitialized, isOpen]);
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
@@ -157,7 +200,16 @@ export function WebsiteWidget({ orgId, chatId }: WebsiteWidgetProps) {
           return (
             <Message key={message.id} from={message.role}>
               {hasContent && (
-                <MessageContent>
+                <MessageContent
+                  style={{
+                    backgroundColor: message.role === "user" 
+                      ? config.primaryColor 
+                      : config.secondaryColor,
+                    color: message.role === "user"
+                      ? config.textSecondaryColor
+                      : config.textPrimaryColor,
+                  }}
+                >
                   {message.parts?.map((part: MessagePart, i: number) => {
                     switch (part.type) {
                       case "text":
@@ -183,28 +235,55 @@ export function WebsiteWidget({ orgId, chatId }: WebsiteWidgetProps) {
   return (
     <>
       {isOpen && (
-        <div className="fixed bottom-24 right-6 w-[420px] h-[650px] bg-background border rounded-2xl shadow-2xl flex flex-col z-50 animate-in slide-in-from-bottom-4 duration-300">
-          <div className="flex items-center justify-between p-4 border-b bg-gradient-to-r from-primary/5 to-primary/10 rounded-t-2xl">
+        <div 
+          className="fixed bottom-24 right-6 w-[420px] h-[650px] rounded-2xl shadow-2xl flex flex-col z-50 animate-in slide-in-from-bottom-4 duration-300"
+          style={{ 
+            backgroundColor: config.backgroundColor,
+            color: config.textPrimaryColor 
+          }}
+        >
+          <div 
+            className="flex items-center justify-between p-4 rounded-t-2xl"
+            style={{ 
+              backgroundColor: config.secondaryColor,
+              borderBottom: `1px solid ${config.borderColor}`
+            }}
+          >
             <div className="flex items-center gap-2.5">
+              {config.logoUrl && (
+                <Image 
+                  src={config.logoUrl} 
+                  alt="Company Logo" 
+                  width={config.logoWidth}
+                  height={config.logoHeight}
+                  className="object-contain"
+                  style={{ borderRadius: `${config.logoBorderRadius}px` }}
+                />
+              )}
               <div className="w-2.5 h-2.5 rounded-full bg-green-500 animate-pulse" />
               <div>
-                <h3 className="font-semibold text-base">Chat Support</h3>
-                <p className="text-xs text-muted-foreground">
-                  We reply instantly
+                <h3 className="font-semibold text-base" style={{ color: config.textPrimaryColor }}>
+                  {config.headerTitle}
+                </h3>
+                <p className="text-xs opacity-70" style={{ color: config.textPrimaryColor }}>
+                  {config.headerSubtitle}
                 </p>
               </div>
             </div>
             <Button
               variant="ghost"
               size="icon"
-              className="h-7 w-7 rounded-full hover:bg-background/80"
+              className="h-7 w-7 rounded-full"
               onClick={() => setIsOpen(false)}
+              style={{ 
+                color: config.textPrimaryColor 
+              }}
             >
               <X className="h-3.5 w-3.5" />
             </Button>
           </div>
 
-          <div className="flex-1 overflow-hidden flex flex-col p-5 bg-gradient-to-b from-background to-muted/20">
+          <div className="flex-1 overflow-hidden flex flex-col p-5 rounded-b-2xl" style={{ backgroundColor: config.backgroundColor }}>
             {!isInitialized ? (
               <div className="flex items-center justify-center h-full">
                 <Loader />
@@ -221,7 +300,11 @@ export function WebsiteWidget({ orgId, chatId }: WebsiteWidgetProps) {
 
                 <PromptInput
                   onSubmit={handleSubmit}
-                  className="mt-4 bg-background/50 backdrop-blur-sm border rounded-xl shadow-sm"
+                  className="mt-4 backdrop-blur-sm rounded-xl shadow-sm"
+                  style={{ 
+                    backgroundColor: config.backgroundColor,
+                    border: `1px solid ${config.borderColor}`
+                  }}
                   globalDrop
                   multiple
                 >
@@ -236,7 +319,8 @@ export function WebsiteWidget({ orgId, chatId }: WebsiteWidgetProps) {
                         onChange={(e) => setInput(e.target.value)}
                         value={input}
                         className="flex-1 border-0 focus-visible:ring-0 bg-transparent resize-none"
-                        placeholder="What would you like to know?"
+                        placeholder={config.inputPlaceholder}
+                        style={{ color: config.textPrimaryColor }}
                         disabled={
                           status === "submitted" || status === "streaming"
                         }
@@ -250,6 +334,10 @@ export function WebsiteWidget({ orgId, chatId }: WebsiteWidgetProps) {
                         status={status}
                         size="default"
                         className="h-10 w-10 shrink-0"
+                        style={{ 
+                          backgroundColor: config.primaryColor,
+                          color: config.textSecondaryColor 
+                        }}
                       />
                     </div>
                   </PromptInputBody>
@@ -264,6 +352,10 @@ export function WebsiteWidget({ orgId, chatId }: WebsiteWidgetProps) {
         onClick={() => setIsOpen(!isOpen)}
         size="lg"
         className="fixed bottom-4 right-6 h-16 w-16 rounded-full shadow-2xl hover:shadow-3xl z-50 transition-all duration-300 hover:scale-110"
+        style={{ 
+          backgroundColor: config.primaryColor,
+          color: config.textSecondaryColor 
+        }}
       >
         {isOpen ? (
           <X className="h-6 w-6" />
