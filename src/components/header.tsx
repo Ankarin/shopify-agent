@@ -3,7 +3,7 @@
 import { ClerkLoaded, ClerkLoading, UserButton } from "@clerk/nextjs";
 import { SidebarTrigger } from "./ui/sidebar";
 import { Skeleton } from "./ui/skeleton";
-import { ModeToggle } from "./ui/toggle";
+// import { ModeToggle } from "./ui/toggle";
 import { useEffect, useState } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { Building2, Plus, ChevronDown, LayoutDashboard } from "lucide-react";
@@ -150,8 +150,8 @@ const Header = () => {
           </div>
 
           <div className="flex items-center gap-3">
-            <ModeToggle />
-            <div className="h-6 w-px bg-border" />
+            {/* <ModeToggle /> */}
+            {/* <div className="h-6 w-px bg-border" /> */}
 
             <ClerkLoading>
               <UserButtonSkeleton />
