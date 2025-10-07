@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Image from "next/image";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -40,7 +41,6 @@ export function WidgetCustomizer({ orgId, chat }: WidgetCustomizerProps) {
 
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
-  const [savedMessage, setSavedMessage] = useState("");
   const [selectedLogoFile, setSelectedLogoFile] = useState<File | null>(null);
   const [logoPreviewUrl, setLogoPreviewUrl] = useState<string | null>(null);
   
@@ -70,7 +70,6 @@ export function WidgetCustomizer({ orgId, chat }: WidgetCustomizerProps) {
 
   const handleSave = async () => {
     setIsSaving(true);
-    setSavedMessage("");
 
     try {
       const finalSettings = { ...settings };
@@ -109,7 +108,7 @@ export function WidgetCustomizer({ orgId, chat }: WidgetCustomizerProps) {
           finalSettings.logoKey = uploadData.key;
         } else {
           const error = await uploadResponse.json();
-          setSavedMessage(`❌ Failed to upload logo: ${error.error}`);
+          toast.error(`Failed to upload logo: ${error.error}`);
           setIsSaving(false);
           return;
         }
@@ -132,14 +131,13 @@ export function WidgetCustomizer({ orgId, chat }: WidgetCustomizerProps) {
         setSettings(savedData);
         setSelectedLogoFile(null);
         setLogoPreviewUrl(null);
-        setSavedMessage("✅ Settings saved successfully!");
-        setTimeout(() => setSavedMessage(""), 3000);
+        toast.success("Settings saved successfully!");
       } else {
-        setSavedMessage("❌ Failed to save settings");
+        toast.error("Failed to save settings");
       }
     } catch (error) {
       console.error("Failed to save settings:", error);
-      setSavedMessage("❌ Failed to save settings");
+      toast.error("Failed to save settings");
     } finally {
       setIsSaving(false);
     }
@@ -157,7 +155,6 @@ export function WidgetCustomizer({ orgId, chat }: WidgetCustomizerProps) {
 
   const handleReset = async () => {
     setIsSaving(true);
-    setSavedMessage("");
 
     try {
       // Delete logo file from storage if exists
@@ -196,14 +193,13 @@ export function WidgetCustomizer({ orgId, chat }: WidgetCustomizerProps) {
         setSettings(savedData);
         setSelectedLogoFile(null);
         setLogoPreviewUrl(null);
-        setSavedMessage("✅ Settings reset to defaults successfully!");
-        setTimeout(() => setSavedMessage(""), 3000);
+        toast.success("Settings reset to defaults successfully!");
       } else {
-        setSavedMessage("❌ Failed to reset settings");
+        toast.error("Failed to reset settings");
       }
     } catch (error) {
       console.error("Failed to reset settings:", error);
-      setSavedMessage("❌ Failed to reset settings");
+      toast.error("Failed to reset settings");
     } finally {
       setIsSaving(false);
     }
@@ -211,7 +207,6 @@ export function WidgetCustomizer({ orgId, chat }: WidgetCustomizerProps) {
 
   const handleRemoveLogo = async () => {
     setIsSaving(true);
-    setSavedMessage("");
 
     try {
       // Delete logo file from storage if exists
@@ -252,14 +247,13 @@ export function WidgetCustomizer({ orgId, chat }: WidgetCustomizerProps) {
         setSettings(savedData);
         setSelectedLogoFile(null);
         setLogoPreviewUrl(null);
-        setSavedMessage("✅ Logo removed successfully!");
-        setTimeout(() => setSavedMessage(""), 3000);
+        toast.success("Logo removed successfully!");
       } else {
-        setSavedMessage("❌ Failed to remove logo");
+        toast.error("Failed to remove logo");
       }
     } catch (error) {
       console.error("Failed to remove logo:", error);
-      setSavedMessage("❌ Failed to remove logo");
+      toast.error("Failed to remove logo");
     } finally {
       setIsSaving(false);
     }
@@ -642,10 +636,6 @@ export function WidgetCustomizer({ orgId, chat }: WidgetCustomizerProps) {
             Reset to Defaults
           </Button>
         </div>
-
-        {savedMessage && (
-          <div className="text-center text-sm font-medium">{savedMessage}</div>
-        )}
       </div>
 
       {/* Widget Preview */}
