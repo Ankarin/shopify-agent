@@ -29,6 +29,7 @@ interface WebsiteWidgetProps {
   orgId: string;
   chatId: string;
   customization?: WidgetCustomization;
+  isLoading?: boolean;
 }
 
 interface MessagePart {
@@ -36,7 +37,7 @@ interface MessagePart {
   text?: string;
 }
 
-export function WebsiteWidget({ orgId, chatId, customization }: WebsiteWidgetProps) {
+export function WebsiteWidget({ orgId, chatId, customization, isLoading = false }: WebsiteWidgetProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [input, setInput] = useState("");
   const [isInitialized, setIsInitialized] = useState(false);
@@ -362,16 +363,21 @@ export function WebsiteWidget({ orgId, chatId, customization }: WebsiteWidgetPro
       )}
 
       <Button
-        onClick={() => setIsOpen(!isOpen)}
+        onClick={() => !isLoading && setIsOpen(!isOpen)}
         size="lg"
+        disabled={isLoading}
         className="fixed bottom-4 right-6 h-16 w-16 rounded-full hover:scale-110 z-50 transition-all duration-300"
         style={{ 
           backgroundColor: config.primaryColor,
           color: config.textSecondaryColor,
-          boxShadow: 'none'
+          boxShadow: 'none',
+          opacity: isLoading ? 0.7 : 1,
+          cursor: isLoading ? 'not-allowed' : 'pointer'
         }}
       >
-        {isOpen ? (
+        {isLoading ? (
+          <div className="animate-spin rounded-full aspect-square h-6 w-6 border-2 border-current border-t-transparent" />
+        ) : isOpen ? (
           <X className="h-6 w-6" />
         ) : (
           <MessageSquare className="h-6 w-6" />
