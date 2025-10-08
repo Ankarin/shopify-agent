@@ -8,6 +8,15 @@
   5. Save!
 -->
 
+<style>
+  #chat-widget-iframe {
+    border: none !important;
+    border: 0 !important;
+    outline: none !important;
+    box-shadow: none !important;
+  }
+</style>
+
 <iframe 
   id="chat-widget-iframe"
   src="https://5698fb1a9543.ngrok-free.app/chat/{orgId}" 
@@ -17,12 +26,15 @@
     right: 20px; 
     width: 100px; 
     height: 100px; 
-    border: none; 
+    border: none !important; 
+    border: 0 !important;
+    outline: none !important;
     z-index: 9999; 
     transition: all 0.3s ease;
     background: transparent;
     pointer-events: auto;
   "
+  frameborder="0"
   allowtransparency="true"
 ></iframe>
 
