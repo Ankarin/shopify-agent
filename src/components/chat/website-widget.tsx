@@ -43,6 +43,19 @@ export function WebsiteWidget({ orgId, chatId, customization }: WebsiteWidgetPro
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const [loadedCustomization, setLoadedCustomization] = useState<WidgetCustomization | null>(null);
 
+  // Notify parent window about widget state changes
+  useEffect(() => {
+    if (window.parent !== window) {
+      window.parent.postMessage({ 
+        type: 'widget-resize', 
+        isOpen,
+        // Send dimensions for parent to adjust iframe
+        width: isOpen ? 500 : 90,
+        height: isOpen ? 780 : 90
+      }, '*');
+    }
+  }, [isOpen]);
+
   // Load customization from API if not provided via props
   useEffect(() => {
     if (!customization) {
@@ -351,10 +364,11 @@ export function WebsiteWidget({ orgId, chatId, customization }: WebsiteWidgetPro
       <Button
         onClick={() => setIsOpen(!isOpen)}
         size="lg"
-        className="fixed bottom-4 right-6 h-16 w-16 rounded-full shadow-2xl hover:shadow-3xl z-50 transition-all duration-300 hover:scale-110"
+        className="fixed bottom-4 right-6 h-16 w-16 rounded-full hover:scale-110 z-50 transition-all duration-300"
         style={{ 
           backgroundColor: config.primaryColor,
-          color: config.textSecondaryColor 
+          color: config.textSecondaryColor,
+          boxShadow: 'none'
         }}
       >
         {isOpen ? (

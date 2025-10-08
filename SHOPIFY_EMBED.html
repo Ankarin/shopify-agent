@@ -1,0 +1,48 @@
+<!-- 
+  Widget Chat Embed Code for Shopify
+  Add this code to your Shopify theme:
+  1. Go to Online Store > Themes
+  2. Click Actions > Edit code
+  3. Open theme.liquid file
+  4. Paste this code before </body>
+  5. Save!
+-->
+
+<iframe 
+  id="chat-widget-iframe"
+  src="https://5698fb1a9543.ngrok-free.app/chat/c66305fa-b219-47a9-a102-89dea9f657df/fd9717f8-69e7-46b6-831b-4bcff9750efc" 
+  style="
+    position: fixed; 
+    bottom: 20px; 
+    right: 20px; 
+    width: 90px; 
+    height: 90px; 
+    border: none; 
+    z-index: 9999; 
+    transition: all 0.3s ease;
+    background: transparent;
+    pointer-events: auto;
+  "
+  allowtransparency="true"
+></iframe>
+
+<script>
+  (function() {
+    const iframe = document.getElementById('chat-widget-iframe');
+    
+    // Listen for resize messages from the widget
+    window.addEventListener('message', function(event) {
+      // Security: In production, verify event.origin matches your domain
+      // if (event.origin !== 'https://your-domain.com') return;
+      
+      if (event.data && event.data.type === 'widget-resize') {
+        const { width, height } = event.data;
+        
+        // Smoothly resize iframe
+        iframe.style.width = width + 'px';
+        iframe.style.height = height + 'px';
+      }
+    });
+  })();
+</script>
+

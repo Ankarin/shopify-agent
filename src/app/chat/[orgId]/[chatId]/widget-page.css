@@ -1,0 +1,8 @@
+/* Transparent background for widget iframe */
+body {
+    background: transparent !important;
+}
+
+html {
+    background: transparent !important;
+}
