@@ -3,6 +3,7 @@
 import { WebsiteWidget } from "@/components/chat/website-widget";
 import { use, useEffect } from "react";
 import "./[chatId]/widget-page.css";
+import { CHAT_NOT_CREATED } from "@/lib/chat/constants";
 import { useRouter } from "next/navigation";
 
 interface PageProps {
@@ -16,38 +17,25 @@ const Page = ({ params }: PageProps) => {
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: false positive
   useEffect(() => {
-    const initializeChat = async () => {
-      try {
-        const storageKey = `widget-chat-${orgId}`;
-        let existingChatId = localStorage.getItem(storageKey);
+    if (typeof window !== "undefined") {
+      const storageKey = `widget-chat-${orgId}`;
+      const existingChatId = localStorage.getItem(storageKey);
 
-        if (!existingChatId) {
-          const response = await fetch(`/api/chat/${orgId}`, {
-            method: "POST",
-          });
-
-          if (!response.ok) {
-            throw new Error("Failed to create chat");
-          }
-
-          const newChat = await response.json();
-          existingChatId = newChat.id;
-
-          if (existingChatId) {
-            localStorage.setItem(storageKey, existingChatId);
-          }
-        }
-
-        router.push(`/chat/${orgId}/${existingChatId}`);
-      } catch (error) {
-        console.error("Error initializing chat:", error);
+      if (existingChatId) {
+        router.replace(`/chat/${orgId}/${existingChatId}`);
+      } else {
+        router.replace(`/chat/${orgId}/${CHAT_NOT_CREATED}`);
       }
-    };
-
-    initializeChat();
+    }
   }, [orgId]);
 
-  return <WebsiteWidget orgId={orgId} chatId={""} isLoading={isLoading} />;
+  return (
+    <WebsiteWidget
+      orgId={orgId}
+      chatId={CHAT_NOT_CREATED}
+      isLoading={isLoading}
+    />
+  );
 };
 
 export default Page;
