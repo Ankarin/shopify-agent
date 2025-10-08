@@ -50,8 +50,8 @@ export function WebsiteWidget({ orgId, chatId, customization }: WebsiteWidgetPro
         type: 'widget-resize', 
         isOpen,
         // Send dimensions for parent to adjust iframe
-        width: isOpen ? 500 : 90,
-        height: isOpen ? 780 : 90
+        width: isOpen ? 500 : 100,
+        height: isOpen ? 780 : 100
       }, '*');
     }
   }, [isOpen]);

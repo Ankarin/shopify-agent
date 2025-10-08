@@ -1,8 +1,10 @@
 /* Transparent background for widget iframe */
 body {
-    background: transparent !important;
+    background: transparent;
+    background-color: transparent;
 }
 
 html {
-    background: transparent !important;
+    background: transparent;
+    background-color: transparent;
 }

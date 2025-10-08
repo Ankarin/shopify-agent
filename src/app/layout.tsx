@@ -6,8 +6,6 @@ import { dark } from '@clerk/themes'
 import { Toaster } from "sonner";
 import {
   ClerkProvider,
-  UserButton,
-
 } from '@clerk/nextjs'
 import { ThemeProvider } from "@/components/theme-provider";
 const geistSans = Geist({
@@ -36,9 +34,10 @@ export default function RootLayout({
         baseTheme: dark,
       }}
     >
-      <html lang="en">
+      <html lang="en" suppressHydrationWarning>
         <body
           className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+          suppressHydrationWarning
         >
           <ThemeProvider
             attribute="class"
