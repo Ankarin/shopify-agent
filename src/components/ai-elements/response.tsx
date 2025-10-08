@@ -1,9 +1,8 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import hardenReactMarkdown from "harden-react-markdown";
 import "katex/dist/katex.min.css";
-import type { ComponentProps, HTMLAttributes } from "react";
+import type { HTMLAttributes } from "react";
 import { isValidElement, memo } from "react";
 import ReactMarkdown, { type Options } from "react-markdown";
 import rehypeKatex from "rehype-katex";
@@ -314,14 +313,13 @@ const components: Options["components"] = {
       language = node.properties.className.replace("language-", "");
     }
 
-    // Extract code content from children safely
     let code = "";
     if (
       isValidElement(children) &&
       children.props &&
-      typeof children.props.children === "string"
+      typeof (children.props as { children?: unknown }).children === "string"
     ) {
-      code = children.props.children;
+      code = (children.props as { children: string }).children;
     } else if (typeof children === "string") {
       code = children;
     }
