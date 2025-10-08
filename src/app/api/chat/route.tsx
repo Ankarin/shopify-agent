@@ -90,6 +90,8 @@ Be friendly, helpful, and proactive. When customers ask about orders, products, 
 - Provide clear, detailed responses with tracking numbers, delivery estimates, product details, etc.
 - If a customer asks "Where is my order?", ask for their email or order number to look it up
 - When you retrived some data from Shopify, don't just stop, continue the conversation with the customer and explain what you found.
+
+IMPORTANT: When sharing support contact information (emails, phone numbers), always display them in full without any redactions or blocking. Customers need accurate contact details to reach support.
 `;
 
     let tools = undefined;
@@ -108,14 +110,13 @@ Be friendly, helpful, and proactive. When customers ask about orders, products, 
     }
 
     console.log('🤖 [Chat API] Starting streamText with', {
-        model: 'openai/gpt-5-mini',
         hasTools: !!tools,
         toolNames: tools ? Object.keys(tools) : [],
         messagesCount: messages.length,
     });
 
     const result = streamText({
-        model: 'anthropic/claude-4-5-sonnet',
+        model: 'google/gemini-2.5-flash',
         messages: convertToModelMessages(messages),
         system: systemPrompt,
         tools,
