@@ -17,7 +17,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Loader } from "@/components/ai-elements/loader";
 import { WebsiteWidget } from "@/components/chat/website-widget";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
-import { Toggle } from "@/components/ui/toggle";
 import {
   DEFAULT_WIDGET_CONFIG,
   type WidgetCustomization,
@@ -146,7 +145,7 @@ export function WidgetCustomizer({ orgId, chat }: WidgetCustomizerProps) {
 
   const updateSetting = (
     key: keyof WidgetCustomization,
-    value: string | number,
+    value: string | number | boolean,
   ) => {
     setSettings((prev) => ({
       ...prev,
@@ -615,19 +614,24 @@ export function WidgetCustomizer({ orgId, chat }: WidgetCustomizerProps) {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="showBranding">Show Branding Footer</Label>
-                  <div className="flex items-center gap-2">
-                    <Toggle
-                      pressed={settings.showBranding !== false}
-                      onPressedChange={(pressed) =>
-                        updateSetting("showBranding", pressed)
+                  <div className="flex items-center gap-3">
+                    <input
+                      id="showBranding"
+                      type="checkbox"
+                      checked={settings.showBranding !== false}
+                      onChange={(e) =>
+                        updateSetting("showBranding", e.target.checked)
                       }
-                    >
-                      {settings.showBranding !== false ? "Enabled" : "Disabled"}
-                    </Toggle>
-                    <p className="text-xs text-muted-foreground">
-                      Display "Powered By Sevensocials" at the bottom of the widget
-                    </p>
+                      className="h-5 w-5 rounded border-gray-300 cursor-pointer"
+                    />
+                    <div className="flex-1">
+                      <Label htmlFor="showBranding" className="cursor-pointer">
+                        Show Branding Footer
+                      </Label>
+                      <p className="text-xs text-muted-foreground">
+                        Display "Powered By Sevensocials" at the bottom of the widget
+                      </p>
+                    </div>
                   </div>
                 </div>
               </CardContent>
