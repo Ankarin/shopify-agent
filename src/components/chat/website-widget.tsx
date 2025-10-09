@@ -28,6 +28,11 @@ export function WebsiteWidget({
     useState<WidgetCustomization | null>(null);
   const [currentChatId, setCurrentChatId] = useState(chatId);
 
+  // Update currentChatId when chatId prop changes
+  useEffect(() => {
+    setCurrentChatId(chatId);
+  }, [chatId]);
+
   // Notify parent window about widget state changes
   useEffect(() => {
     if (window.parent !== window) {

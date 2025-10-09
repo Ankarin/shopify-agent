@@ -24,6 +24,15 @@ export default function ChatPage({
         window.open(`/chat/${orgId}/${chatId}`, '_blank');
     };
 
+    // Don't render widget until parameters are loaded
+    if (!orgId || !chatId) {
+        return (
+            <div className="flex items-center justify-center h-full">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900" />
+            </div>
+        );
+    }
+
     return (
         <div className="relative h-full">
             <div className="absolute top-6 left-6 z-[60]">

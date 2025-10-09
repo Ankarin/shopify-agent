@@ -83,18 +83,49 @@ export function ChatSection({
 
   useEffect(() => {
     const initializeChat = async () => {
+      console.log("🔄 [ChatSection] Initializing chat:", { 
+        chatId, 
+        orgId,
+        chatIdType: typeof chatId,
+        orgIdType: typeof orgId,
+        chatIdLength: chatId?.length,
+        orgIdLength: orgId?.length,
+      });
+      
+      // Check if parameters are valid
+      if (!orgId || !chatId) {
+        console.error("❌ [ChatSection] Missing orgId or chatId:", { orgId, chatId });
+        setIsInitialized(true);
+        return;
+      }
+      
+      // Don't load history if chat hasn't been created yet
+      if (chatId === CHAT_NOT_CREATED) {
+        console.log("⚠️ [ChatSection] Chat not created yet, skipping history load");
+        setIsInitialized(true);
+        return;
+      }
+
       try {
-        const response = await fetch(`/api/chat/${orgId}/${chatId}`);
+        const url = `/api/chat/${orgId}/${chatId}`;
+        console.log("📡 [ChatSection] Fetching chat history from:", url);
+        const response = await fetch(url);
+        
         if (response.ok) {
           const data = await response.json();
+          console.log("✅ [ChatSection] Chat history loaded:", data);
           if (data.messages && data.messages.length > 0) {
             setMessages(data.messages);
           }
-          setIsInitialized(true);
+        } else {
+          console.error("❌ [ChatSection] Failed to fetch chat:", response.status, response.statusText, "URL:", url);
         }
       } catch (error) {
-        console.error("Failed to initialize chat:", error);
+        console.error("❌ [ChatSection] Failed to initialize chat:", error);
+      } finally {
+        // Always initialize, even if there was an error
         setIsInitialized(true);
+        console.log("✅ [ChatSection] Chat initialized");
       }
     };
 
@@ -154,6 +185,7 @@ export function ChatSection({
     setInput("");
   };
 
+  // Check for pending messages after chat creation
   useEffect(() => {
     if (chatId !== CHAT_NOT_CREATED && isInitialized) {
       const pendingMessageKey = `pending-message-${orgId}`;
