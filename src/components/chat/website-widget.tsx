@@ -158,13 +158,13 @@ export function WebsiteWidget({
             <Button
               variant="ghost"
               size="icon"
-              className="h-7 w-7 rounded-full"
+              className="h-10 w-10 rounded-full hover:bg-black/5"
               onClick={() => setIsOpen(false)}
               style={{
                 color: config.textPrimaryColor,
               }}
             >
-              <X className="h-3.5 w-3.5" />
+              <X className="h-6 w-6" />
             </Button>
           </div>
 
@@ -209,29 +209,39 @@ export function WebsiteWidget({
         </div>
       )}
 
-      <Button
-        onClick={() => !isLoading && setIsOpen(!isOpen)}
-        size="lg"
-        disabled={isLoading}
-        className="fixed bottom-4 right-6 h-16 w-16 rounded-full hover:scale-110 z-50 transition-all duration-300"
-        style={{
-          backgroundColor: config.primaryColor,
-          color: config.textSecondaryColor,
-          boxShadow: "none",
-          opacity: isLoading ? 0.7 : 1,
-          cursor: isLoading ? "not-allowed" : "pointer",
-          bottom: 'max(1rem, env(safe-area-inset-bottom))',
-          right: 'max(1.5rem, env(safe-area-inset-right))',
-        }}
-      >
-        {isLoading ? (
-          <div className="animate-spin rounded-full aspect-square h-6 w-6 border-2 border-current border-t-transparent" />
-        ) : isOpen ? (
-          <X className="h-6 w-6" />
-        ) : (
-          <MessageSquare className="h-6 w-6" />
-        )}
-      </Button>
+      {!isOpen && (
+        <Button
+          onClick={() => !isLoading && setIsOpen(true)}
+          size="lg"
+          disabled={isLoading}
+          className="absolute h-16 w-16 rounded-full z-50 transition-all duration-300"
+          style={{
+            backgroundColor: config.primaryColor,
+            color: config.textSecondaryColor,
+            boxShadow: "0 4px 12px rgba(0, 0, 0, 0.15)",
+            opacity: isLoading ? 0.7 : 1,
+            cursor: isLoading ? "not-allowed" : "pointer",
+            bottom: "20px",
+            right: "20px",
+            WebkitTapHighlightColor: "transparent",
+            touchAction: "manipulation",
+          }}
+          onMouseEnter={(e) => {
+            if (!isLoading) {
+              e.currentTarget.style.transform = "scale(1.1)";
+            }
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.transform = "scale(1)";
+          }}
+        >
+          {isLoading ? (
+            <div className="animate-spin rounded-full aspect-square h-6 w-6 border-2 border-current border-t-transparent" />
+          ) : (
+            <MessageSquare className="h-6 w-6" />
+          )}
+        </Button>
+      )}
     </>
   );
 }
