@@ -109,7 +109,7 @@ export function WebsiteWidget({
   };
 
   return (
-    <div style={{ position: 'relative', width: '100%', height: '100%' }}>
+    <div style={{ position: 'fixed', inset: 0, pointerEvents: 'none' }}>
       {isOpen && (
         <div
           className="fixed bottom-0 right-0 md:bottom-24 md:right-6 w-full h-full md:w-[420px] md:h-[650px] md:rounded-2xl shadow-2xl flex flex-col z-50 animate-in slide-in-from-bottom-4 duration-300"
@@ -118,6 +118,7 @@ export function WebsiteWidget({
             color: config.textPrimaryColor,
             paddingBottom: 'env(safe-area-inset-bottom)',
             paddingTop: 'env(safe-area-inset-top)',
+            pointerEvents: 'auto',
           }}
         >
           <div
@@ -216,7 +217,7 @@ export function WebsiteWidget({
           disabled={isLoading}
           className="h-14 w-14 rounded-full z-50 transition-all duration-300 flex items-center justify-center p-0"
           style={{
-            position: "fixed",
+            position: "absolute",
             backgroundColor: config.primaryColor,
             color: config.textSecondaryColor,
             boxShadow: "0 4px 12px rgba(0, 0, 0, 0.15)",
@@ -233,6 +234,7 @@ export function WebsiteWidget({
             justifyContent: "center",
             visibility: "visible",
             padding: "0",
+            pointerEvents: "auto",
           }}
           onMouseEnter={(e) => {
             if (!isLoading) {
@@ -244,9 +246,9 @@ export function WebsiteWidget({
           }}
         >
           {isLoading ? (
-            <div className="animate-spin rounded-full aspect-square h-10 w-10 border-2 border-current border-t-transparent" />
+            <div className="animate-spin rounded-full aspect-square h-6 w-6 border-2 border-current border-t-transparent" />
           ) : (
-            <MessageSquare className="h-10 w-10" />
+            <MessageSquare className="h-7 w-7" />
           )}
         </Button>
       )}
