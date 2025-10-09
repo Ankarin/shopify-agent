@@ -109,7 +109,7 @@ export function WebsiteWidget({
   };
 
   return (
-    <>
+    <div style={{ position: 'relative', width: '100%', height: '100%' }}>
       {isOpen && (
         <div
           className="fixed bottom-0 right-0 md:bottom-24 md:right-6 w-full h-full md:w-[420px] md:h-[650px] md:rounded-2xl shadow-2xl flex flex-col z-50 animate-in slide-in-from-bottom-4 duration-300"
@@ -214,8 +214,9 @@ export function WebsiteWidget({
           onClick={() => !isLoading && setIsOpen(true)}
           size="lg"
           disabled={isLoading}
-          className="absolute h-16 w-16 rounded-full z-50 transition-all duration-300"
+          className="h-16 w-16 rounded-full z-50 transition-all duration-300"
           style={{
+            position: "fixed",
             backgroundColor: config.primaryColor,
             color: config.textSecondaryColor,
             boxShadow: "0 4px 12px rgba(0, 0, 0, 0.15)",
@@ -225,14 +226,18 @@ export function WebsiteWidget({
             right: "20px",
             WebkitTapHighlightColor: "transparent",
             touchAction: "manipulation",
+            WebkitTransform: "translate3d(0, 0, 0)",
+            transform: "translate3d(0, 0, 0)",
+            display: "block",
+            visibility: "visible",
           }}
           onMouseEnter={(e) => {
             if (!isLoading) {
-              e.currentTarget.style.transform = "scale(1.1)";
+              e.currentTarget.style.transform = "scale(1.1) translate3d(0, 0, 0)";
             }
           }}
           onMouseLeave={(e) => {
-            e.currentTarget.style.transform = "scale(1)";
+            e.currentTarget.style.transform = "scale(1) translate3d(0, 0, 0)";
           }}
         >
           {isLoading ? (
@@ -242,6 +247,6 @@ export function WebsiteWidget({
           )}
         </Button>
       )}
-    </>
+    </div>
   );
 }
