@@ -214,7 +214,7 @@ export function WebsiteWidget({
           onClick={() => !isLoading && setIsOpen(true)}
           size="lg"
           disabled={isLoading}
-          className="h-16 w-16 rounded-full z-50 transition-all duration-300"
+          className="h-14 w-14 rounded-full z-50 transition-all duration-300 flex items-center justify-center p-0"
           style={{
             position: "fixed",
             backgroundColor: config.primaryColor,
@@ -228,8 +228,11 @@ export function WebsiteWidget({
             touchAction: "manipulation",
             WebkitTransform: "translate3d(0, 0, 0)",
             transform: "translate3d(0, 0, 0)",
-            display: "block",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
             visibility: "visible",
+            padding: "0",
           }}
           onMouseEnter={(e) => {
             if (!isLoading) {
@@ -241,9 +244,9 @@ export function WebsiteWidget({
           }}
         >
           {isLoading ? (
-            <div className="animate-spin rounded-full aspect-square h-6 w-6 border-2 border-current border-t-transparent" />
+            <div className="animate-spin rounded-full aspect-square h-10 w-10 border-2 border-current border-t-transparent" />
           ) : (
-            <MessageSquare className="h-6 w-6" />
+            <MessageSquare className="h-10 w-10" />
           )}
         </Button>
       )}
