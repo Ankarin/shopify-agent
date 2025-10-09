@@ -5,16 +5,17 @@ export interface WidgetCustomization {
   textPrimaryColor?: string;
   textSecondaryColor?: string;
   borderColor?: string;
-  
+
   logoKey?: string;
   logoUrl?: string;
   logoWidth?: number;
   logoHeight?: number;
   logoBorderRadius?: number;
-  
+
   headerTitle?: string;
   headerSubtitle?: string;
   inputPlaceholder?: string;
+  showBranding?: boolean;
 }
 
 export const DEFAULT_WIDGET_COLORS = {
@@ -30,6 +31,7 @@ export const DEFAULT_WIDGET_TEXTS = {
   headerTitle: "Chat Support",
   headerSubtitle: "We reply instantly",
   inputPlaceholder: "What would you like to know?",
+  showBranding: true,
 } as const;
 
 export const DEFAULT_WIDGET_LOGO = {

@@ -40,9 +40,6 @@ export function WebsiteWidget({
         {
           type: "widget-resize",
           isOpen,
-          // Send dimensions for parent to adjust iframe
-          width: isOpen ? 500 : 100,
-          height: isOpen ? 780 : 100,
         },
         "*",
       );
@@ -105,23 +102,30 @@ export function WebsiteWidget({
     inputPlaceholder:
       activeCustomization?.inputPlaceholder ||
       DEFAULT_WIDGET_CONFIG.inputPlaceholder,
+    showBranding:
+      activeCustomization?.showBranding !== undefined
+        ? activeCustomization.showBranding
+        : DEFAULT_WIDGET_CONFIG.showBranding,
   };
 
   return (
     <>
       {isOpen && (
         <div
-          className="fixed bottom-24 right-6 w-[420px] h-[650px] rounded-2xl shadow-2xl flex flex-col z-50 animate-in slide-in-from-bottom-4 duration-300"
+          className="fixed bottom-0 right-0 md:bottom-24 md:right-6 w-full h-full md:w-[420px] md:h-[650px] md:rounded-2xl shadow-2xl flex flex-col z-50 animate-in slide-in-from-bottom-4 duration-300"
           style={{
             backgroundColor: config.backgroundColor,
             color: config.textPrimaryColor,
+            paddingBottom: 'env(safe-area-inset-bottom)',
+            paddingTop: 'env(safe-area-inset-top)',
           }}
         >
           <div
-            className="flex items-center justify-between p-4 rounded-t-2xl"
+            className="flex items-center justify-between p-4 md:rounded-t-2xl"
             style={{
               backgroundColor: config.secondaryColor,
               borderBottom: `1px solid ${config.borderColor}`,
+              paddingTop: 'max(1rem, env(safe-area-inset-top))',
             }}
           >
             <div className="flex items-center gap-2.5">
@@ -165,8 +169,10 @@ export function WebsiteWidget({
           </div>
 
           <div
-            className="flex-1 overflow-hidden flex flex-col p-5 rounded-b-2xl"
-            style={{ backgroundColor: config.backgroundColor }}
+            className="flex-1 overflow-hidden flex flex-col p-5"
+            style={{
+              backgroundColor: config.backgroundColor,
+            }}
           >
             <ChatSection
               key={currentChatId}
@@ -176,6 +182,30 @@ export function WebsiteWidget({
               onChatIdChange={setCurrentChatId}
             />
           </div>
+
+          {config.showBranding && (
+            <div
+              className="flex items-center justify-center py-2 px-4 text-xs md:rounded-b-2xl"
+              style={{
+                backgroundColor: config.secondaryColor,
+                borderTop: `1px solid ${config.borderColor}`,
+                color: config.textPrimaryColor,
+                opacity: 0.7,
+                paddingBottom: 'max(0.5rem, env(safe-area-inset-bottom))',
+              }}
+            >
+              Powered By{" "}
+              <a
+                href="https://www.sevensocials.com/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="ml-1 font-medium hover:underline"
+                style={{ color: config.textPrimaryColor }}
+              >
+                Sevensocials
+              </a>
+            </div>
+          )}
         </div>
       )}
 
@@ -190,6 +220,8 @@ export function WebsiteWidget({
           boxShadow: "none",
           opacity: isLoading ? 0.7 : 1,
           cursor: isLoading ? "not-allowed" : "pointer",
+          bottom: 'max(1rem, env(safe-area-inset-bottom))',
+          right: 'max(1.5rem, env(safe-area-inset-right))',
         }}
       >
         {isLoading ? (

@@ -25,7 +25,7 @@ export const chats = pgTable("chats", {
 export const widgetSettings = pgTable("widget_settings", {
   id: uuid("id").primaryKey().defaultRandom(),
   organizationId: uuid("organization_id").references(() => organizations.id, { onDelete: "cascade" }).notNull().unique(),
-  
+
   // Colors from shadcn theme (using constants from defaults.ts)
   primaryColor: varchar("primary_color", { length: 7 }).default(DEFAULT_WIDGET_CONFIG.primaryColor),
   backgroundColor: varchar("background_color", { length: 7 }).default(DEFAULT_WIDGET_CONFIG.backgroundColor),
@@ -33,16 +33,17 @@ export const widgetSettings = pgTable("widget_settings", {
   textPrimaryColor: varchar("text_primary_color", { length: 7 }).default(DEFAULT_WIDGET_CONFIG.textPrimaryColor),
   textSecondaryColor: varchar("text_secondary_color", { length: 7 }).default(DEFAULT_WIDGET_CONFIG.textSecondaryColor),
   borderColor: varchar("border_color", { length: 7 }).default(DEFAULT_WIDGET_CONFIG.borderColor),
-  
+
   logoKey: text("logo_key"),
   logoWidth: integer("logo_width").default(DEFAULT_WIDGET_CONFIG.logoWidth),
   logoHeight: integer("logo_height").default(DEFAULT_WIDGET_CONFIG.logoHeight),
   logoBorderRadius: integer("logo_border_radius").default(DEFAULT_WIDGET_CONFIG.logoBorderRadius),
-  
+
   headerTitle: varchar("header_title", { length: 100 }).default(DEFAULT_WIDGET_CONFIG.headerTitle),
   headerSubtitle: varchar("header_subtitle", { length: 100 }).default(DEFAULT_WIDGET_CONFIG.headerSubtitle),
   inputPlaceholder: varchar("input_placeholder", { length: 200 }).default(DEFAULT_WIDGET_CONFIG.inputPlaceholder),
-  
+  showBranding: integer("show_branding").default(1),
+
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });

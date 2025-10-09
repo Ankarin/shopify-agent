@@ -1,0 +1,87 @@
+<!-- 
+  Widget Chat Embed Code for Shopify
+  Add this code to your Shopify theme:
+  1. Go to Online Store > Themes
+  2. Click Actions > Edit code
+  3. Open theme.liquid file
+  4. Paste this code before </body>
+  5. Save!
+-->
+
+<style>
+  #chat-widget-iframe {
+    border: none !important;
+    border: 0 !important;
+    outline: none !important;
+    box-shadow: none !important;
+  }
+</style>
+
+<iframe id="chat-widget-iframe" src="https://shopify-agent-ashen.vercel.app/chat/{orgId}" style="
+    position: fixed; 
+    bottom: 20px; 
+    right: 20px; 
+    width: 100px; 
+    height: 100px; 
+    border: none !important; 
+    border: 0 !important;
+    outline: none !important;
+    z-index: 9999; 
+    transition: all 0.3s ease;
+    background: transparent;
+    pointer-events: auto;
+  " frameborder="0" allowtransparency="true"></iframe>
+
+<script>
+  (function () {
+    const iframe = document.getElementById('chat-widget-iframe');
+
+    function isMobile() {
+      return window.innerWidth <= 768;
+    }
+
+    function updateIframePosition() {
+      const mobile = isMobile();
+      if (mobile && iframe.dataset.isOpen === 'true') {
+        iframe.style.bottom = '0';
+        iframe.style.right = '0';
+        iframe.style.top = '0';
+        iframe.style.left = '0';
+        iframe.style.width = '100%';
+        iframe.style.height = '100%';
+        iframe.style.maxWidth = '100%';
+        iframe.style.maxHeight = '100%';
+      } else if (!mobile && iframe.dataset.isOpen === 'true') {
+        iframe.style.bottom = '20px';
+        iframe.style.right = '20px';
+        iframe.style.top = 'auto';
+        iframe.style.left = 'auto';
+        iframe.style.width = '500px';
+        iframe.style.height = '780px';
+        iframe.style.maxWidth = 'calc(100vw - 40px)';
+        iframe.style.maxHeight = 'calc(100vh - 40px)';
+      } else {
+        iframe.style.bottom = '20px';
+        iframe.style.right = '20px';
+        iframe.style.top = 'auto';
+        iframe.style.left = 'auto';
+        iframe.style.width = '100px';
+        iframe.style.height = '100px';
+        iframe.style.maxWidth = '100px';
+        iframe.style.maxHeight = '100px';
+      }
+    }
+
+    window.addEventListener('message', function (event) {
+      if (event.data && event.data.type === 'widget-resize') {
+        const { isOpen } = event.data;
+        iframe.dataset.isOpen = isOpen;
+        updateIframePosition();
+      }
+    });
+
+    window.addEventListener('resize', updateIframePosition);
+
+    updateIframePosition();
+  })();
+</script>

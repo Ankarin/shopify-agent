@@ -1,0 +1,1 @@
+ALTER TABLE "widget_settings" ADD COLUMN "show_branding" integer DEFAULT 1;

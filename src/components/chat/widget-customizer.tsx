@@ -17,6 +17,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Loader } from "@/components/ai-elements/loader";
 import { WebsiteWidget } from "@/components/chat/website-widget";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
+import { Toggle } from "@/components/ui/toggle";
 import {
   DEFAULT_WIDGET_CONFIG,
   type WidgetCustomization,
@@ -43,7 +44,7 @@ export function WidgetCustomizer({ orgId, chat }: WidgetCustomizerProps) {
   const [isSaving, setIsSaving] = useState(false);
   const [selectedLogoFile, setSelectedLogoFile] = useState<File | null>(null);
   const [logoPreviewUrl, setLogoPreviewUrl] = useState<string | null>(null);
-  
+
   const [showResetDialog, setShowResetDialog] = useState(false);
   const [showRemoveLogoDialog, setShowRemoveLogoDialog] = useState(false);
 
@@ -611,6 +612,23 @@ export function WidgetCustomizer({ orgId, chat }: WidgetCustomizerProps) {
                       updateSetting("inputPlaceholder", e.target.value)
                     }
                   />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="showBranding">Show Branding Footer</Label>
+                  <div className="flex items-center gap-2">
+                    <Toggle
+                      pressed={settings.showBranding !== false}
+                      onPressedChange={(pressed) =>
+                        updateSetting("showBranding", pressed)
+                      }
+                    >
+                      {settings.showBranding !== false ? "Enabled" : "Disabled"}
+                    </Toggle>
+                    <p className="text-xs text-muted-foreground">
+                      Display "Powered By Sevensocials" at the bottom of the widget
+                    </p>
+                  </div>
                 </div>
               </CardContent>
             </Card>

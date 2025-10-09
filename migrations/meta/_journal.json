@@ -15,6 +15,13 @@
       "when": 1759852403171,
       "tag": "0001_known_dracula",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1760015107788,
+      "tag": "0002_peaceful_raider",
+      "breakpoints": true
     }
   ]
 }
