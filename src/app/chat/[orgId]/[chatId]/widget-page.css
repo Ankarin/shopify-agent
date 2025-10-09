@@ -1,6 +1,9 @@
 html {
     background: transparent;
     background-color: transparent;
+    height: 100%;
+    width: 100%;
+    -webkit-text-size-adjust: 100%;
 }
 
 body {
@@ -8,7 +11,13 @@ body {
     background-color: transparent;
     margin: 0;
     padding: 0;
-    overflow: hidden;
+    overflow: visible;
+    position: relative;
+    height: 100%;
+    width: 100%;
+    -webkit-tap-highlight-color: transparent;
+    -webkit-touch-callout: none;
+    -webkit-overflow-scrolling: touch;
 }
 
 @supports (padding: env(safe-area-inset-bottom)) {
@@ -22,7 +31,13 @@ body {
 
 @media (max-width: 768px) {
     body {
-        overflow: auto;
+        overflow: visible;
         -webkit-overflow-scrolling: touch;
+        min-height: 100vh;
+        position: relative;
+    }
+
+    html {
+        overflow: visible;
     }
 }
