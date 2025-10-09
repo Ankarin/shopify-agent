@@ -638,7 +638,7 @@ export function WidgetCustomizer({ orgId, chat }: WidgetCustomizerProps) {
             </Card>
           </TabsContent>
         </Tabs>
-
+//
         <div className="flex items-center gap-4">
           <Button
             onClick={handleSave}
