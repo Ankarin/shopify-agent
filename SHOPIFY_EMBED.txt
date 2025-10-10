@@ -20,7 +20,7 @@
 
 <iframe 
   id="chat-widget-iframe" 
-  src="https://shopify-agent-ashen.vercel.app/chat/c66305fa-b219-47a9-a102-89dea9f657df" 
+  src="https://shopify-agent-ashen.vercel.app/test-mobile.html" 
   style="
     position: fixed !important; 
     top: 50% !important;
