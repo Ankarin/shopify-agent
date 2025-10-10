@@ -20,11 +20,13 @@
 
 <iframe 
   id="chat-widget-iframe" 
-  src="https://shopify-agent-ashen.vercel.app/chat/{orgId}" 
+  src="https://shopify-agent-ashen.vercel.app/chat/c66305fa-b219-47a9-a102-89dea9f657df" 
   style="
     position: fixed !important; 
-    bottom: 20px !important; 
-    right: 20px !important; 
+    top: 50% !important;
+    left: 50% !important;
+    transform: translate(-50%, -50%) !important;
+    -webkit-transform: translate(-50%, -50%) !important;
     width: 100px !important; 
     height: 100px !important;
     min-width: 100px !important;
@@ -33,7 +35,7 @@
     outline: none !important;
     z-index: 2147483647 !important; 
     transition: all 0.3s ease !important;
-    background: transparent !important;
+    background: red !important;
     pointer-events: auto !important;
     overflow: visible !important;
     -webkit-overflow-scrolling: touch !important;

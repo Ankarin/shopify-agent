@@ -126,7 +126,7 @@ export function WebsiteWidget({
   };
 
   return (
-    <div style={{ position: 'fixed', inset: 0, pointerEvents: 'none' }}>
+    <>
       {isOpen && (
         <div
           className="fixed bottom-0 right-0 md:bottom-24 md:right-6 w-full h-full md:w-[420px] md:h-[650px] md:rounded-2xl shadow-2xl flex flex-col z-50 animate-in slide-in-from-bottom-4 duration-300"
@@ -228,47 +228,50 @@ export function WebsiteWidget({
       )}
 
       {!isOpen && (
-        <Button
-          onClick={() => !isLoading && setIsOpen(true)}
-          size="lg"
-          disabled={isLoading}
-          className="h-14 w-14 rounded-full z-50 transition-all duration-300 flex items-center justify-center p-0"
+        <div
           style={{
-            position: "absolute",
-            backgroundColor: config.primaryColor,
-            color: config.textSecondaryColor,
-            boxShadow: "0 4px 12px rgba(0, 0, 0, 0.15)",
-            opacity: isLoading ? 0.7 : 1,
-            cursor: isLoading ? "not-allowed" : "pointer",
-            bottom: "20px",
-            right: "20px",
-            WebkitTapHighlightColor: "transparent",
-            touchAction: "manipulation",
-            WebkitTransform: "translate3d(0, 0, 0)",
-            transform: "translate3d(0, 0, 0)",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            visibility: "visible",
-            padding: "0",
-            pointerEvents: "auto",
-          }}
-          onMouseEnter={(e) => {
-            if (!isLoading) {
-              e.currentTarget.style.transform = "scale(1.1) translate3d(0, 0, 0)";
-            }
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.transform = "scale(1) translate3d(0, 0, 0)";
+            position: "fixed",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            WebkitTransform: "translate(-50%, -50%)",
+            zIndex: 999999,
           }}
         >
-          {isLoading ? (
-            <div className="animate-spin rounded-full aspect-square h-6 w-6 border-2 border-current border-t-transparent" />
-          ) : (
-            <MessageSquare className="h-7 w-7" />
-          )}
-        </Button>
+          <button
+            onClick={() => !isLoading && setIsOpen(true)}
+            disabled={isLoading}
+            style={{
+              width: "56px",
+              height: "56px",
+              borderRadius: "50%",
+              backgroundColor: config.primaryColor,
+              color: config.textSecondaryColor,
+              border: "none",
+              boxShadow: "0 4px 12px rgba(0, 0, 0, 0.15)",
+              cursor: isLoading ? "not-allowed" : "pointer",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              padding: "0",
+              opacity: isLoading ? 0.7 : 1,
+            }}
+          >
+            {isLoading ? (
+              <div style={{
+                width: "24px",
+                height: "24px",
+                border: "2px solid currentColor",
+                borderTopColor: "transparent",
+                borderRadius: "50%",
+                animation: "spin 1s linear infinite"
+              }} />
+            ) : (
+              <MessageSquare style={{ width: "28px", height: "28px" }} />
+            )}
+          </button>
+        </div>
       )}
-    </div>
+    </>
   );
 }
