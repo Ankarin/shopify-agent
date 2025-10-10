@@ -1,43 +1,39 @@
+* {
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+}
+
 html {
     background: transparent;
-    background-color: transparent;
     height: 100%;
     width: 100%;
+    overflow: hidden;
     -webkit-text-size-adjust: 100%;
 }
 
 body {
     background: transparent;
-    background-color: transparent;
     margin: 0;
     padding: 0;
-    overflow: visible;
-    position: relative;
-    height: 100%;
+    overflow: hidden;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
     width: 100%;
-    -webkit-tap-highlight-color: transparent;
+    height: 100%;
     -webkit-touch-callout: none;
     -webkit-overflow-scrolling: touch;
 }
 
-@supports (padding: env(safe-area-inset-bottom)) {
-    body {
-        padding-top: env(safe-area-inset-top);
-        padding-bottom: env(safe-area-inset-bottom);
-        padding-left: env(safe-area-inset-left);
-        padding-right: env(safe-area-inset-right);
-    }
-}
-
-@media (max-width: 768px) {
-    body {
-        overflow: visible;
-        -webkit-overflow-scrolling: touch;
-        min-height: 100vh;
-        position: relative;
-    }
-
-    html {
-        overflow: visible;
-    }
+#__next {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
 }

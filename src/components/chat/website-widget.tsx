@@ -230,11 +230,13 @@ export function WebsiteWidget({
       {!isOpen && (
         <div
           style={{
-            position: "absolute",
-            top: "10px",
-            left: "10px",
-            right: "10px",
-            bottom: "10px",
+            position: "fixed",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            width: "100%",
+            height: "100%",
             background: "blue",
             color: "white",
             display: "flex",
