@@ -1,10 +1,15 @@
 "use client";
 
-import { WebsiteWidget } from "@/components/chat/website-widget";
+import dynamic from 'next/dynamic';
 import { use, useEffect } from "react";
 import "./[chatId]/widget-page.css";
 import { CHAT_NOT_CREATED } from "@/lib/chat/constants";
 import { useRouter } from "next/navigation";
+
+const WebsiteWidget = dynamic(
+  () => import('@/components/chat/website-widget').then(mod => mod.WebsiteWidget),
+  { ssr: false }
+);
 
 interface PageProps {
   params: Promise<{ orgId: string }>;
@@ -13,7 +18,6 @@ interface PageProps {
 const Page = ({ params }: PageProps) => {
   const { orgId } = use(params);
   const router = useRouter();
-  const isLoading = true;
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: false positive
   useEffect(() => {
@@ -33,7 +37,6 @@ const Page = ({ params }: PageProps) => {
     <WebsiteWidget
       orgId={orgId}
       chatId={CHAT_NOT_CREATED}
-      isLoading={isLoading}
     />
   );
 };

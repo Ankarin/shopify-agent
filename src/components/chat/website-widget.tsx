@@ -28,23 +28,6 @@ export function WebsiteWidget({
     useState<WidgetCustomization | null>(null);
   const [currentChatId, setCurrentChatId] = useState(chatId);
 
-  useEffect(() => {
-    console.log('[Widget] Component mounted', {
-      isLoading,
-      isOpen,
-      userAgent: typeof navigator !== 'undefined' ? navigator.userAgent : 'unknown',
-      windowSize: typeof window !== 'undefined' ? { width: window.innerWidth, height: window.innerHeight } : null
-    });
-  }, []);
-
-  useEffect(() => {
-    console.log('[Widget] Button visibility:', {
-      shouldShowButton: !isOpen,
-      isLoading,
-      isOpen
-    });
-  }, [isOpen, isLoading]);
-
   // Update currentChatId when chatId prop changes
   useEffect(() => {
     setCurrentChatId(chatId);
@@ -129,13 +112,10 @@ export function WebsiteWidget({
     <>
       {isOpen && (
         <div
-          className="fixed bottom-0 right-0 md:bottom-24 md:right-6 w-full h-full md:w-[420px] md:h-[650px] md:rounded-2xl shadow-2xl flex flex-col z-50 animate-in slide-in-from-bottom-4 duration-300"
+          className="fixed bottom-0 right-0 md:bottom-24 md:right-6 w-full h-full md:w-[420px] md:h-[650px] md:rounded-2xl shadow-2xl flex flex-col z-50"
           style={{
             backgroundColor: config.backgroundColor,
             color: config.textPrimaryColor,
-            paddingBottom: 'env(safe-area-inset-bottom)',
-            paddingTop: 'env(safe-area-inset-top)',
-            pointerEvents: 'auto',
           }}
         >
           <div
@@ -228,48 +208,25 @@ export function WebsiteWidget({
       )}
 
       {!isOpen && (
-        <div
+        <Button
+          onClick={() => !isLoading && setIsOpen(!isOpen)}
+          size="lg"
+          disabled={isLoading}
+          className="fixed bottom-4 right-6 h-16 w-16 rounded-full hover:scale-110 z-50 transition-all duration-300"
           style={{
-            position: "fixed",
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            width: "100%",
-            height: "100%",
-            background: "blue",
-            color: "white",
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            justifyContent: "center",
-            fontSize: "20px",
-            fontWeight: "bold",
-            zIndex: 999999,
+            backgroundColor: config.primaryColor,
+            color: config.textSecondaryColor,
+            boxShadow: "0 4px 12px rgba(0, 0, 0, 0.15)",
+            opacity: isLoading ? 0.7 : 1,
+            cursor: isLoading ? "not-allowed" : "pointer",
           }}
         >
-          <div style={{ marginBottom: "10px" }}>CHAT WIDGET</div>
-          <button
-            onClick={() => !isLoading && setIsOpen(true)}
-            disabled={isLoading}
-            style={{
-              width: "56px",
-              height: "56px",
-              borderRadius: "50%",
-              backgroundColor: config.primaryColor,
-              color: config.textSecondaryColor,
-              border: "3px solid yellow",
-              boxShadow: "0 4px 12px rgba(0, 0, 0, 0.15)",
-              cursor: "pointer",
-              display: "block",
-              opacity: 1,
-              fontSize: "30px",
-            }}
-          >
-            💬
-          </button>
-          <div style={{ marginTop: "10px", fontSize: "12px" }}>Click to chat</div>
-        </div>
+          {isLoading ? (
+            <div className="animate-spin rounded-full aspect-square h-6 w-6 border-2 border-current border-t-transparent" />
+          ) : (
+            <MessageSquare className="h-6 w-6" />
+          )}
+        </Button>
       )}
     </>
   );

@@ -20,7 +20,7 @@
 
 <iframe 
   id="chat-widget-iframe" 
-  src="https://shopify-agent-ashen.vercel.app/widget.html?orgId={orgId}" 
+  src="https://shopify-agent-ashen.vercel.app/chat/{orgId}" 
   style="
     position: fixed !important; 
     bottom: 20px !important;
