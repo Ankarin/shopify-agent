@@ -230,14 +230,23 @@ export function WebsiteWidget({
       {!isOpen && (
         <div
           style={{
-            position: "fixed",
-            top: "50%",
-            left: "50%",
-            transform: "translate(-50%, -50%)",
-            WebkitTransform: "translate(-50%, -50%)",
+            position: "absolute",
+            top: "10px",
+            left: "10px",
+            right: "10px",
+            bottom: "10px",
+            background: "blue",
+            color: "white",
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
+            fontSize: "20px",
+            fontWeight: "bold",
             zIndex: 999999,
           }}
         >
+          <div style={{ marginBottom: "10px" }}>CHAT WIDGET</div>
           <button
             onClick={() => !isLoading && setIsOpen(true)}
             disabled={isLoading}
@@ -247,29 +256,17 @@ export function WebsiteWidget({
               borderRadius: "50%",
               backgroundColor: config.primaryColor,
               color: config.textSecondaryColor,
-              border: "none",
+              border: "3px solid yellow",
               boxShadow: "0 4px 12px rgba(0, 0, 0, 0.15)",
-              cursor: isLoading ? "not-allowed" : "pointer",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              padding: "0",
-              opacity: isLoading ? 0.7 : 1,
+              cursor: "pointer",
+              display: "block",
+              opacity: 1,
+              fontSize: "30px",
             }}
           >
-            {isLoading ? (
-              <div style={{
-                width: "24px",
-                height: "24px",
-                border: "2px solid currentColor",
-                borderTopColor: "transparent",
-                borderRadius: "50%",
-                animation: "spin 1s linear infinite"
-              }} />
-            ) : (
-              <MessageSquare style={{ width: "28px", height: "28px" }} />
-            )}
+            💬
           </button>
+          <div style={{ marginTop: "10px", fontSize: "12px" }}>Click to chat</div>
         </div>
       )}
     </>
