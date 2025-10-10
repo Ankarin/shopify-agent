@@ -22,6 +22,7 @@ export default clerkMiddleware(async (auth, req) => {
 
     if (req.nextUrl.pathname.startsWith('/chat/') ||
         req.nextUrl.pathname.startsWith('/api/chat') ||
+        req.nextUrl.pathname.startsWith('/iframe-test') ||
         req.nextUrl.pathname.includes('/widget-settings')) {
         response.headers.delete('X-Frame-Options');
         response.headers.set('Content-Security-Policy', 'frame-ancestors *');
