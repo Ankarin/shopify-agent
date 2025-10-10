@@ -212,7 +212,7 @@ export function WebsiteWidget({
           onClick={() => !isLoading && setIsOpen(!isOpen)}
           size="lg"
           disabled={isLoading}
-          className="fixed bottom-4 right-6 h-16 w-16 rounded-full hover:scale-110 z-50 transition-all duration-300"
+          className="fixed bottom-4 right-4 h-16 w-16 rounded-full hover:scale-110 z-50 transition-all duration-300"
           style={{
             backgroundColor: config.primaryColor,
             color: config.textSecondaryColor,
