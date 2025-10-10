@@ -3,9 +3,6 @@
 import { use, useState, useEffect } from 'react';
 import { MessageSquare, X } from 'lucide-react';
 
-export const dynamic = 'force-dynamic';
-export const revalidate = 0;
-
 export default function MobileWidgetPage({
     params,
 }: {
