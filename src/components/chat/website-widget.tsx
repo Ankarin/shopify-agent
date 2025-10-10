@@ -28,6 +28,23 @@ export function WebsiteWidget({
     useState<WidgetCustomization | null>(null);
   const [currentChatId, setCurrentChatId] = useState(chatId);
 
+  useEffect(() => {
+    console.log('[Widget] Component mounted', {
+      isLoading,
+      isOpen,
+      userAgent: typeof navigator !== 'undefined' ? navigator.userAgent : 'unknown',
+      windowSize: typeof window !== 'undefined' ? { width: window.innerWidth, height: window.innerHeight } : null
+    });
+  }, []);
+
+  useEffect(() => {
+    console.log('[Widget] Button visibility:', {
+      shouldShowButton: !isOpen,
+      isLoading,
+      isOpen
+    });
+  }, [isOpen, isLoading]);
+
   // Update currentChatId when chatId prop changes
   useEffect(() => {
     setCurrentChatId(chatId);

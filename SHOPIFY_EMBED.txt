@@ -26,7 +26,9 @@
     bottom: 20px !important; 
     right: 20px !important; 
     width: 100px !important; 
-    height: 100px !important; 
+    height: 100px !important;
+    min-width: 100px !important;
+    min-height: 100px !important;
     border: none !important; 
     outline: none !important;
     z-index: 2147483647 !important; 
@@ -38,8 +40,10 @@
     display: block !important;
     opacity: 1 !important;
     visibility: visible !important;
+    will-change: width, height !important;
   " 
-  frameborder="0" 
+  frameborder="0"
+  scrolling="no"
   allowtransparency="true"
   allow="autoplay"
   aria-label="Chat Widget"
@@ -50,9 +54,15 @@
     const iframe = document.getElementById('chat-widget-iframe');
     
     if (!iframe) {
-      console.error('Chat widget iframe not found');
+      console.error('[Chat Widget] iframe not found');
       return;
     }
+
+    console.log('[Chat Widget] Initializing...', {
+      userAgent: navigator.userAgent,
+      screenWidth: window.innerWidth,
+      isMobile: window.innerWidth <= 768
+    });
 
     iframe.style.visibility = 'visible';
     iframe.style.display = 'block';
@@ -63,8 +73,10 @@
     }
 
     function setIframeStyle(styles) {
-      Object.keys(styles).forEach(function(key) {
-        iframe.style[key] = styles[key];
+      requestAnimationFrame(function() {
+        Object.keys(styles).forEach(function(key) {
+          iframe.style.setProperty(key, styles[key], 'important');
+        });
       });
     }
 
@@ -109,9 +121,21 @@
     }
 
     iframe.addEventListener('load', function() {
+      console.log('[Chat Widget] iframe loaded successfully');
       iframe.style.visibility = 'visible';
       iframe.style.opacity = '1';
       updateIframePosition();
+      
+      setTimeout(function() {
+        var rect = iframe.getBoundingClientRect();
+        console.log('[Chat Widget] iframe dimensions:', {
+          width: rect.width,
+          height: rect.height,
+          bottom: rect.bottom,
+          right: rect.right,
+          visible: rect.width > 0 && rect.height > 0
+        });
+      }, 500);
     });
 
     window.addEventListener('message', function (event) {
