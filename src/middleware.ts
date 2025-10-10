@@ -6,7 +6,8 @@ const isPublicRoute = createRouteMatcher([
     "/widget(.*)",
     "/chat/(.*)",
     "/api/chat(.*)",
-    "/api/organizations/(.+)/widget-settings"
+    "/api/organizations/(.+)/widget-settings",
+    "/iframe-test(.*)"
 ]);
 export default clerkMiddleware(async (auth, req) => {
     const { userId } = await auth();
