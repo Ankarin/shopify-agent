@@ -10,28 +10,25 @@ const isPublicRoute = createRouteMatcher([
     "/iframe-test(.*)"
 ]);
 export default clerkMiddleware(async (auth, req) => {
-    const { userId } = await auth();
-    if (isSignupRoute(req)) {
-        return NextResponse.redirect(new URL("/sign-in", req.url));
-    }
-    if (!userId && !isAuthRoute(req) && !isPublicRoute(req)) {
-        return NextResponse.redirect(new URL("/sign-in", req.url));
-    }
-
-    const response = NextResponse.next();
-
-    if (req.nextUrl.pathname.startsWith('/chat/') ||
-        req.nextUrl.pathname.startsWith('/api/chat') ||
-        req.nextUrl.pathname.startsWith('/iframe-test') ||
-        req.nextUrl.pathname.includes('/widget-settings')) {
+    if (isPublicRoute(req)) {
+        const response = NextResponse.next();
         response.headers.delete('X-Frame-Options');
         response.headers.set('Content-Security-Policy', 'frame-ancestors *');
         response.headers.set('Access-Control-Allow-Origin', '*');
         response.headers.set('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
         response.headers.set('Access-Control-Allow-Headers', 'Content-Type');
+        return response;
     }
 
-    return response;
+    const { userId } = await auth();
+    if (isSignupRoute(req)) {
+        return NextResponse.redirect(new URL("/sign-in", req.url));
+    }
+    if (!userId && !isAuthRoute(req)) {
+        return NextResponse.redirect(new URL("/sign-in", req.url));
+    }
+
+    return NextResponse.next();
 });
 
 export const config = {
