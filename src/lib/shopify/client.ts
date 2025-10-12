@@ -179,6 +179,66 @@ export class ShopifyClient {
     return data.orders.edges.map(edge => edge.node);
   }
 
+  async getOrderByPhone(phone: string, limit = 50): Promise<ShopifyOrder[]> {
+    const query = `
+      query getOrdersByPhone($phone: String!, $limit: Int!) {
+        orders(first: $limit, query: $phone, sortKey: CREATED_AT, reverse: true) {
+          edges {
+            node {
+              id
+              name
+              email
+              createdAt
+              displayFinancialStatus
+              displayFulfillmentStatus
+              totalPriceSet {
+                shopMoney {
+                  amount
+                  currencyCode
+                }
+              }
+              lineItems(first: 50) {
+                edges {
+                  node {
+                    name
+                    quantity
+                    originalUnitPriceSet {
+                      shopMoney {
+                        amount
+                      }
+                    }
+                  }
+                }
+              }
+              fulfillments(first: 10) {
+                trackingInfo {
+                  number
+                  url
+                  company
+                }
+                status
+              }
+              shippingAddress {
+                address1
+                city
+                province
+                country
+                zip
+              }
+            }
+          }
+        }
+      }
+    `;
+
+    const data = await this.graphqlRequest<{ orders: { edges: Array<{ node: ShopifyOrder }> } }>(
+      query,
+      { phone: `phone:${phone}`, limit }
+    );
+
+    return data.orders.edges.map(edge => edge.node);
+  }
+
   async getOrderByNumber(orderNumber: string): Promise<ShopifyOrder | null> {
     const query = `
       query getOrderByName($orderNumber: String!) {

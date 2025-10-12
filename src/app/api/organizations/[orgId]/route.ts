@@ -51,7 +51,7 @@ export async function PATCH(
 
         const { orgId } = await params;
         const body = await req.json();
-        const { name, website, data, shopifyDomain, shopifyAccessToken } = body;
+        const { name, website, data, shopifyDomain, shopifyAccessToken, timezone, businessHoursStart, businessHoursEnd } = body;
 
         if (!name || !website) {
             return NextResponse.json(
@@ -60,16 +60,22 @@ export async function PATCH(
             );
         }
 
+        const updateData: any = {
+            name,
+            website,
+            data: data || null,
+            shopifyDomain: shopifyDomain || null,
+            shopifyAccessToken: shopifyAccessToken || null,
+            updatedAt: new Date(),
+        };
+
+        if (timezone !== undefined) updateData.timezone = timezone;
+        if (businessHoursStart !== undefined) updateData.businessHoursStart = businessHoursStart;
+        if (businessHoursEnd !== undefined) updateData.businessHoursEnd = businessHoursEnd;
+
         const updatedOrganization = await db
             .update(organizations)
-            .set({
-                name,
-                website,
-                data: data || null,
-                shopifyDomain: shopifyDomain || null,
-                shopifyAccessToken: shopifyAccessToken || null,
-                updatedAt: new Date(),
-            })
+            .set(updateData)
             .where(eq(organizations.id, orgId))
             .returning();
 

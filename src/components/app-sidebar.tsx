@@ -13,7 +13,7 @@ import {
     SidebarMenuButton,
 } from "@/components/ui/sidebar"
 import { Button } from "@/components/ui/button"
-import { Plus, MessageSquare, LayoutDashboard, Palette } from "lucide-react"
+import { Plus, MessageSquare, LayoutDashboard, Palette, BarChart3 } from "lucide-react"
 import { useState, useEffect } from "react"
 import { useRouter, useParams, usePathname } from "next/navigation"
 import { toast } from "sonner"
@@ -96,6 +96,15 @@ export function AppSidebar() {
                                         >
                                             <LayoutDashboard className="h-4 w-4" />
                                             <span>Manage Org</span>
+                                        </SidebarMenuButton>
+                                    </SidebarMenuItem>
+                                    <SidebarMenuItem>
+                                        <SidebarMenuButton
+                                            onClick={() => router.push(`/${currentOrgId}/dashboard`)}
+                                            isActive={pathname === `/${currentOrgId}/dashboard`}
+                                        >
+                                            <BarChart3 className="h-4 w-4" />
+                                            <span>Analytics</span>
                                         </SidebarMenuButton>
                                     </SidebarMenuItem>
                                     <SidebarMenuItem>

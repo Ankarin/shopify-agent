@@ -13,11 +13,20 @@ export const organizations = pgTable("organizations", {
   shopifyDomain: text("shopify_domain"),
   shopifyAccessToken: text("shopify_access_token"),
   shopifyApiKey: text("shopify_api_key"),
+  timezone: text("timezone").default("Europe/London"),
+  businessHoursStart: integer("business_hours_start").default(9),
+  businessHoursEnd: integer("business_hours_end").default(17),
 });
 
 export const chats = pgTable("chats", {
   id: uuid("id").primaryKey().defaultRandom(),
   organizationId: uuid("organization_id").references(() => organizations.id, { onDelete: "cascade" }),
+  customerEmail: text("customer_email"),
+  customerPhone: text("customer_phone"),
+  messageCount: integer("message_count").default(0).notNull(),
+  escalated: integer("escalated").default(0).notNull(),
+  resolved: integer("resolved").default(0).notNull(),
+  afterHours: integer("after_hours").default(0).notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
@@ -26,7 +35,6 @@ export const widgetSettings = pgTable("widget_settings", {
   id: uuid("id").primaryKey().defaultRandom(),
   organizationId: uuid("organization_id").references(() => organizations.id, { onDelete: "cascade" }).notNull().unique(),
 
-  // Colors from shadcn theme (using constants from defaults.ts)
   primaryColor: varchar("primary_color", { length: 7 }).default(DEFAULT_WIDGET_CONFIG.primaryColor),
   backgroundColor: varchar("background_color", { length: 7 }).default(DEFAULT_WIDGET_CONFIG.backgroundColor),
   secondaryColor: varchar("secondary_color", { length: 7 }).default(DEFAULT_WIDGET_CONFIG.secondaryColor),
@@ -48,15 +56,42 @@ export const widgetSettings = pgTable("widget_settings", {
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
-export const chatsRelations = relations(chats, ({ one }) => ({
+export const chatConversions = pgTable("chat_conversions", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  chatId: uuid("chat_id").references(() => chats.id, { onDelete: "cascade" }).notNull(),
+  organizationId: uuid("organization_id").references(() => organizations.id, { onDelete: "cascade" }).notNull(),
+  customerEmail: text("customer_email"),
+  customerPhone: text("customer_phone"),
+  shopifyOrderId: text("shopify_order_id").notNull(),
+  orderNumber: text("order_number").notNull(),
+  orderAmount: text("order_amount").notNull(),
+  currency: varchar("currency", { length: 3 }).notNull(),
+  orderDate: timestamp("order_date").notNull(),
+  attributionWindow: varchar("attribution_window", { length: 10 }).default("24h"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const chatMessages = pgTable("chat_messages", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  chatId: uuid("chat_id").references(() => chats.id, { onDelete: "cascade" }).notNull(),
+  role: varchar("role", { length: 20 }).notNull(),
+  content: text("content").notNull(),
+  metadata: json("metadata"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const chatsRelations = relations(chats, ({ one, many }) => ({
   organization: one(organizations, {
     fields: [chats.organizationId],
     references: [organizations.id],
   }),
+  conversions: many(chatConversions),
+  messages: many(chatMessages),
 }));
 
 export const organizationsRelations = relations(organizations, ({ many, one }) => ({
   chats: many(chats),
+  conversions: many(chatConversions),
   widgetSettings: one(widgetSettings, {
     fields: [organizations.id],
     references: [widgetSettings.organizationId],
@@ -67,6 +102,24 @@ export const widgetSettingsRelations = relations(widgetSettings, ({ one }) => ({
   organization: one(organizations, {
     fields: [widgetSettings.organizationId],
     references: [organizations.id],
+  }),
+}));
+
+export const chatConversionsRelations = relations(chatConversions, ({ one }) => ({
+  chat: one(chats, {
+    fields: [chatConversions.chatId],
+    references: [chats.id],
+  }),
+  organization: one(organizations, {
+    fields: [chatConversions.organizationId],
+    references: [organizations.id],
+  }),
+}));
+
+export const chatMessagesRelations = relations(chatMessages, ({ one }) => ({
+  chat: one(chats, {
+    fields: [chatMessages.chatId],
+    references: [chats.id],
   }),
 }));
 

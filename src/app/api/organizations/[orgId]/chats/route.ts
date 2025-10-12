@@ -1,8 +1,9 @@
 import { db } from "@/db";
-import { chats } from "@/db/schema";
+import { chats, organizations } from "@/db/schema";
 import { auth } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 import { eq, desc } from "drizzle-orm";
+import { isAfterHours } from "@/lib/utils/business-hours";
 
 export async function GET(
     req: Request,
@@ -44,10 +45,30 @@ export async function POST(
 
         const { orgId } = await params;
 
+        const organization = await db
+            .select()
+            .from(organizations)
+            .where(eq(organizations.id, orgId))
+            .limit(1);
+
+        if (!organization || organization.length === 0) {
+            return NextResponse.json({ error: "Organization not found" }, { status: 404 });
+        }
+
+        const org = organization[0];
+        const now = new Date();
+        const afterHoursFlag = isAfterHours(
+            now,
+            org.timezone || 'Europe/London',
+            org.businessHoursStart || 9,
+            org.businessHoursEnd || 17
+        );
+
         const newChat = await db
             .insert(chats)
             .values({
                 organizationId: orgId,
+                afterHours: afterHoursFlag ? 1 : 0,
             })
             .returning();
 

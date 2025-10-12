@@ -8,9 +8,11 @@ import { ShopifyClient } from "@/lib/shopify/client";
 import {
     createLookupOrderByEmailTool,
     createLookupOrderByNumberTool,
+    createLookupOrderByPhoneTool,
     createGetProductTool,
     createListProductsTool
 } from "@/tools/shopify";
+import { createEscalateToHumanTool } from "@/tools/escalate-to-human";
 
 const redis = new Redis({
     token: process.env.UPSTASH_REDIS_REST_TOKEN,
@@ -85,28 +87,40 @@ Your role is to help customers with:
 4. Customer service inquiries
 
 Be friendly, helpful, and proactive. When customers ask about orders, products, or need help:
-- Ask for necessary information (email for orders, product details for questions)
+- Ask for necessary information (email, phone number, or order number for order lookups)
 - Use the available tools to fetch accurate real-time data from Shopify
 - Provide clear, detailed responses with tracking numbers, delivery estimates, product details, etc.
-- If a customer asks "Where is my order?", ask for their email or order number to look it up
+- If a customer asks "Where is my order?", ask for their email, phone number, or order number to look it up
 - When you retrived some data from Shopify, don't just stop, continue the conversation with the customer and explain what you found.
+
+ESCALATION GUIDELINES:
+You have access to an "escalateToHuman" tool. Use it when:
+- The customer explicitly asks to speak with a human
+- The issue requires refunds, cancellations, or account changes
+- You've tried to help but the customer is still unsatisfied
+- The problem is too complex or outside your capabilities
+- There's a complaint or the customer is frustrated
+
+When escalating, be empathetic and assure them a human will help soon.
 
 IMPORTANT: When sharing support contact information (emails, phone numbers), always display them in full without any redactions or blocking. Customers need accurate contact details to reach support.
 `;
 
-    let tools = undefined;
+    const tools: any = {
+        escalateToHuman: createEscalateToHumanTool(id),
+    };
+
     if (organization.shopifyDomain && organization.shopifyAccessToken) {
         const shopifyClient = new ShopifyClient({
             domain: organization.shopifyDomain,
             accessToken: organization.shopifyAccessToken,
         });
 
-        tools = {
-            lookupOrderByEmail: createLookupOrderByEmailTool(shopifyClient),
-            lookupOrderByNumber: createLookupOrderByNumberTool(shopifyClient),
-            getProduct: createGetProductTool(shopifyClient),
-            listProducts: createListProductsTool(shopifyClient),
-        };
+        tools.lookupOrderByEmail = createLookupOrderByEmailTool(shopifyClient);
+        tools.lookupOrderByNumber = createLookupOrderByNumberTool(shopifyClient);
+        tools.lookupOrderByPhone = createLookupOrderByPhoneTool(shopifyClient);
+        tools.getProduct = createGetProductTool(shopifyClient);
+        tools.listProducts = createListProductsTool(shopifyClient);
     }
 
     console.log('🤖 [Chat API] Starting streamText with', {

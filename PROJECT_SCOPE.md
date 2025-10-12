@@ -1,0 +1,98 @@
+Scope of Work
+
+
+
+1. AI Chatbot
+
+
+
+Must be able to integrate with Shopify and pull order details and tracking information, regardless of which Shopify plan the client is on.
+
+
+
+Chatbot must function 24/7 and act as a customer service agent, capable of handling:
+
+
+
+FAQs
+
+
+
+Product information (e.g., sizes, features, usage)
+
+
+
+Delivery questions
+
+
+
+Order lookups and pulling tracking
+
+
+
+Must correctly handle queries such as “Where is my order?” by:
+
+
+
+Asking for the customer’s email and/or order number.
+
+
+
+Retrieving the order from Shopify.
+
+
+
+Providing an accurate tracking response (shipping status, delivery updates, etc.).
+
+
+
+Chatbot must be deployable via widget on a Shopify storefront.
+
+
+
+Code and setup must be documented so our internal team can manage, adjust, and redeploy for other clients in future.
+
+
+
+2. Dashboard
+
+
+
+A centralised dashboard that tracks chatbot performance and client-specific metrics.
+
+
+
+Must include, at minimum, the following:
+
+
+
+Revenue generated from the chatbot
+
+
+
+Top questions and responses
+
+
+
+Number of conversations handled (including after-hours)
+
+
+
+Messages resolved vs. escalated
+
+
+
+Dashboard must allow:
+
+
+
+Overall reporting across all clients.
+
+
+
+Per-client breakdowns
+
+
+
+Must include functionality for client onboarding, management, and reporting.
+

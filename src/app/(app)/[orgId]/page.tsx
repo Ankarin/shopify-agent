@@ -13,8 +13,10 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
 import { Pencil, Loader2 } from "lucide-react";
+import { COMMON_TIMEZONES } from "@/lib/utils/business-hours";
 
 interface Organization {
     id: string;
@@ -43,6 +45,9 @@ export default function OrganizationPage({
         data: "",
         shopifyDomain: "",
         shopifyAccessToken: "",
+        timezone: "Europe/London",
+        businessHoursStart: 9,
+        businessHoursEnd: 17,
     });
 
     useEffect(() => {
@@ -64,6 +69,9 @@ export default function OrganizationPage({
                     data: data.data || "",
                     shopifyDomain: data.shopifyDomain || "",
                     shopifyAccessToken: data.shopifyAccessToken || "",
+                    timezone: data.timezone || "Europe/London",
+                    businessHoursStart: data.businessHoursStart || 9,
+                    businessHoursEnd: data.businessHoursEnd || 17,
                 });
             }
         } catch (error) {
@@ -156,6 +164,38 @@ export default function OrganizationPage({
                     </div>
 
                     <div className="border-t pt-4">
+                        <h3 className="text-lg font-semibold mb-4">Business Hours</h3>
+                        <div className="space-y-4">
+                            <div>
+                                <h3 className="text-sm font-medium text-muted-foreground mb-1">
+                                    Timezone
+                                </h3>
+                                <p className="text-lg">
+                                    {COMMON_TIMEZONES.find(tz => tz.value === (organization as any).timezone)?.label || (organization as any).timezone || "Europe/London"}
+                                </p>
+                            </div>
+                            <div className="grid grid-cols-2 gap-4">
+                                <div>
+                                    <h3 className="text-sm font-medium text-muted-foreground mb-1">
+                                        Business Hours
+                                    </h3>
+                                    <p className="text-lg">
+                                        {(organization as any).businessHoursStart || 9}:00 - {(organization as any).businessHoursEnd || 17}:00
+                                    </p>
+                                </div>
+                                <div>
+                                    <h3 className="text-sm font-medium text-muted-foreground mb-1">
+                                        After Hours Tracking
+                                    </h3>
+                                    <p className="text-lg text-green-600 font-medium">
+                                        Enabled
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="border-t pt-4">
                         <h3 className="text-lg font-semibold mb-4">Shopify Integration</h3>
                         <div className="space-y-4">
                             <div>
@@ -231,6 +271,60 @@ export default function OrganizationPage({
                                     rows={8}
                                     className="resize-none"
                                 />
+                            </div>
+
+                            <div className="border-t pt-4">
+                                <h3 className="text-sm font-medium mb-3">Business Hours</h3>
+                                <div className="grid gap-4">
+                                    <div className="grid gap-2">
+                                        <Label htmlFor="timezone">Timezone</Label>
+                                        <Select
+                                            value={formData.timezone}
+                                            onValueChange={(value) =>
+                                                setFormData({ ...formData, timezone: value })
+                                            }
+                                        >
+                                            <SelectTrigger>
+                                                <SelectValue placeholder="Select timezone" />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                {COMMON_TIMEZONES.map((tz) => (
+                                                    <SelectItem key={tz.value} value={tz.value}>
+                                                        {tz.label}
+                                                    </SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
+                                    </div>
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div className="grid gap-2">
+                                            <Label htmlFor="businessHoursStart">Start Hour (24h)</Label>
+                                            <Input
+                                                id="businessHoursStart"
+                                                type="number"
+                                                min="0"
+                                                max="23"
+                                                value={formData.businessHoursStart}
+                                                onChange={(e) =>
+                                                    setFormData({ ...formData, businessHoursStart: parseInt(e.target.value) || 9 })
+                                                }
+                                            />
+                                        </div>
+                                        <div className="grid gap-2">
+                                            <Label htmlFor="businessHoursEnd">End Hour (24h)</Label>
+                                            <Input
+                                                id="businessHoursEnd"
+                                                type="number"
+                                                min="0"
+                                                max="23"
+                                                value={formData.businessHoursEnd}
+                                                onChange={(e) =>
+                                                    setFormData({ ...formData, businessHoursEnd: parseInt(e.target.value) || 17 })
+                                                }
+                                            />
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
 
                             <div className="border-t pt-4">
