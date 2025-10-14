@@ -15,7 +15,7 @@ interface ClientBreakdown {
     totalRevenue: number;
     escalated: number;
     resolved: number;
-    conversionRate: number;
+    conversationResolvedPercentage: number;
 }
 
 interface OverallAnalytics {
@@ -28,7 +28,7 @@ interface OverallAnalytics {
         totalChats: number;
         totalMessages: number;
         totalConversions: number;
-        conversionRate: number;
+        conversationResolvedPercentage: number;
         revenue: Record<string, number>;
         escalated: number;
         resolved: number;
@@ -130,11 +130,11 @@ export default function OverallDashboardPage() {
 
                 <Card>
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-sm font-medium">Conversion Rate</CardTitle>
+                        <CardTitle className="text-sm font-medium">Conversation Resolved</CardTitle>
                         <TrendingUp className="h-4 w-4 text-muted-foreground" />
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold">{analytics.overall.conversionRate}%</div>
+                        <div className="text-2xl font-bold">{analytics.overall.conversationResolvedPercentage}%</div>
                         <p className="text-xs text-muted-foreground">
                             across all clients
                         </p>
@@ -221,7 +221,7 @@ export default function OverallDashboardPage() {
                                         <div className="flex items-center justify-between mb-2">
                                             <h3 className="font-semibold text-lg">{client.name}</h3>
                                             <span className="text-sm text-muted-foreground">
-                                                {client.conversionRate}% conversion
+                                                {client.conversationResolvedPercentage}% resolved
                                             </span>
                                         </div>
                                         <div className="grid grid-cols-4 gap-4 text-sm">

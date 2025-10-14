@@ -115,7 +115,7 @@ export async function GET(req: NextRequest) {
                 count: q.count,
             }));
 
-        const conversionRate = totalChats > 0 ? (totalConversions / totalChats) * 100 : 0;
+        const conversationResolvedPercentage = totalChats > 0 ? (resolvedCount / totalChats) * 100 : 0;
 
         const clientBreakdown = orgBreakdownResult.map(org => ({
             id: org.orgId,
@@ -126,7 +126,7 @@ export async function GET(req: NextRequest) {
             totalRevenue: parseFloat(org.totalRevenue as any) || 0,
             escalated: org.escalated,
             resolved: org.resolved,
-            conversionRate: org.totalChats > 0 ? Math.round((org.totalConversions / org.totalChats) * 100 * 100) / 100 : 0,
+            conversationResolvedPercentage: org.totalChats > 0 ? Math.round((org.resolved / org.totalChats) * 100 * 100) / 100 : 0,
         }));
 
         return NextResponse.json({
@@ -139,7 +139,7 @@ export async function GET(req: NextRequest) {
                 totalChats,
                 totalMessages,
                 totalConversions,
-                conversionRate: Math.round(conversionRate * 100) / 100,
+                conversationResolvedPercentage: Math.round(conversationResolvedPercentage * 100) / 100,
                 revenue: revenueByurrency,
                 escalated: escalatedCount,
                 resolved: resolvedCount,
