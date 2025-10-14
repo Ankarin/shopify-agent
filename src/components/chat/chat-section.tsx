@@ -83,22 +83,22 @@ export function ChatSection({
 
   useEffect(() => {
     const initializeChat = async () => {
-      console.log("🔄 [ChatSection] Initializing chat:", { 
-        chatId, 
+      console.log("🔄 [ChatSection] Initializing chat:", {
+        chatId,
         orgId,
         chatIdType: typeof chatId,
         orgIdType: typeof orgId,
         chatIdLength: chatId?.length,
         orgIdLength: orgId?.length,
       });
-      
+
       // Check if parameters are valid
       if (!orgId || !chatId) {
         console.error("❌ [ChatSection] Missing orgId or chatId:", { orgId, chatId });
         setIsInitialized(true);
         return;
       }
-      
+
       // Don't load history if chat hasn't been created yet
       if (chatId === CHAT_NOT_CREATED) {
         console.log("⚠️ [ChatSection] Chat not created yet, skipping history load");
@@ -110,7 +110,7 @@ export function ChatSection({
         const url = `/api/chat/${orgId}/${chatId}`;
         console.log("📡 [ChatSection] Fetching chat history from:", url);
         const response = await fetch(url);
-        
+
         if (response.ok) {
           const data = await response.json();
           console.log("✅ [ChatSection] Chat history loaded:", data);
@@ -226,6 +226,18 @@ export function ChatSection({
 
     return (
       <>
+        {messages.length === 0 && config.initialMessage && (
+          <Message from="assistant">
+            <MessageContent
+              style={{
+                backgroundColor: config.secondaryColor,
+                color: config.textPrimaryColor,
+              }}
+            >
+              <Response>{config.initialMessage}</Response>
+            </MessageContent>
+          </Message>
+        )}
         {messages.map((message) => {
           console.log("🔍 [Widget] Rendering message:", {
             id: message.id,

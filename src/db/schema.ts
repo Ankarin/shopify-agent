@@ -50,6 +50,7 @@ export const widgetSettings = pgTable("widget_settings", {
   headerTitle: varchar("header_title", { length: 100 }).default(DEFAULT_WIDGET_CONFIG.headerTitle),
   headerSubtitle: varchar("header_subtitle", { length: 100 }).default(DEFAULT_WIDGET_CONFIG.headerSubtitle),
   inputPlaceholder: varchar("input_placeholder", { length: 200 }).default(DEFAULT_WIDGET_CONFIG.inputPlaceholder),
+  initialMessage: text("initial_message").default(DEFAULT_WIDGET_CONFIG.initialMessage),
   showBranding: integer("show_branding").default(1),
 
   createdAt: timestamp("created_at").defaultNow().notNull(),

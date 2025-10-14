@@ -102,6 +102,9 @@ export function WebsiteWidget({
     inputPlaceholder:
       activeCustomization?.inputPlaceholder ||
       DEFAULT_WIDGET_CONFIG.inputPlaceholder,
+    initialMessage:
+      activeCustomization?.initialMessage ||
+      DEFAULT_WIDGET_CONFIG.initialMessage,
     showBranding:
       activeCustomization?.showBranding !== undefined
         ? activeCustomization.showBranding

@@ -1,0 +1,1 @@
+ALTER TABLE "widget_settings" ADD COLUMN "initial_message" text DEFAULT 'Hi there! 👋 How can I help you today?';

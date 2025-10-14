@@ -133,7 +133,7 @@ export async function GET(
                 count: q.count,
             }));
 
-        const conversionRate = totalChats > 0 ? (totalConversions / totalChats) * 100 : 0;
+        const conversationResolvedPercentage = totalChats > 0 ? (resolvedCount / totalChats) * 100 : 0;
 
         return NextResponse.json({
             period: {
@@ -145,7 +145,7 @@ export async function GET(
                 totalChats,
                 totalMessages,
                 totalConversions,
-                conversionRate: Math.round(conversionRate * 100) / 100,
+                conversationResolvedPercentage: Math.round(conversationResolvedPercentage * 100) / 100,
                 revenue: revenueByurrency,
                 escalated: escalatedCount,
                 resolved: resolvedCount,

@@ -614,6 +614,21 @@ export function WidgetCustomizer({ orgId, chat }: WidgetCustomizerProps) {
                 </div>
 
                 <div className="space-y-2">
+                  <Label htmlFor="initialMessage">Initial Message</Label>
+                  <Input
+                    id="initialMessage"
+                    type="text"
+                    value={settings.initialMessage || ""}
+                    onChange={(e) =>
+                      updateSetting("initialMessage", e.target.value)
+                    }
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    The first message shown to users when they open the chat
+                  </p>
+                </div>
+
+                <div className="space-y-2">
                   <div className="flex items-center gap-3">
                     <input
                       id="showBranding"

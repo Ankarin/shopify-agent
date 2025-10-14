@@ -15,6 +15,7 @@ export interface WidgetCustomization {
   headerTitle?: string;
   headerSubtitle?: string;
   inputPlaceholder?: string;
+  initialMessage?: string;
   showBranding?: boolean;
 }
 
@@ -31,6 +32,7 @@ export const DEFAULT_WIDGET_TEXTS = {
   headerTitle: "Chat Support",
   headerSubtitle: "We reply instantly",
   inputPlaceholder: "What would you like to know?",
+  initialMessage: "Hi there! 👋 How can I help you today?",
   showBranding: true,
 } as const;
 
