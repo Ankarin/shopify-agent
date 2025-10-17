@@ -16,9 +16,9 @@ export async function GET(req: NextRequest) {
     }
 
     try {
-        const windowHours = 24;
+        const windowDays = 7;
         const startTime = new Date();
-        startTime.setHours(startTime.getHours() - windowHours);
+        startTime.setDate(startTime.getDate() - windowDays);
 
         const chatsWithContact = await db
             .select({
@@ -51,7 +51,7 @@ export async function GET(req: NextRequest) {
                     accessToken: chat.shopifyAccessToken!,
                 });
 
-                let orders = [];
+                let orders: any[] = [];
                 if (chat.email) {
                     orders = await shopifyClient.getOrderByEmail(chat.email, 10);
                 } else if (chat.phone) {
@@ -62,7 +62,7 @@ export async function GET(req: NextRequest) {
                     const orderDate = new Date(order.createdAt);
                     const chatDate = new Date(chat.chatCreatedAt);
 
-                    if (orderDate > chatDate && orderDate.getTime() - chatDate.getTime() <= windowHours * 60 * 60 * 1000) {
+                    if (orderDate > chatDate && orderDate.getTime() - chatDate.getTime() <= windowDays * 24 * 60 * 60 * 1000) {
                         const existingConversion = await db
                             .select()
                             .from(chatConversions)
@@ -76,16 +76,16 @@ export async function GET(req: NextRequest) {
 
                         if (existingConversion.length === 0) {
                             await db.insert(chatConversions).values({
-                                chatId: chat.chatId,
-                                organizationId: chat.orgId,
-                                customerEmail: chat.email,
-                                customerPhone: chat.phone,
+                                chatId: chat.chatId!,
+                                organizationId: chat.orgId!,
+                                customerEmail: chat.email || undefined,
+                                customerPhone: chat.phone || undefined,
                                 shopifyOrderId: order.id,
                                 orderNumber: order.name,
                                 orderAmount: order.totalPriceSet.shopMoney.amount,
                                 currency: order.totalPriceSet.shopMoney.currencyCode,
                                 orderDate: new Date(order.createdAt),
-                                attributionWindow: '24h',
+                                attributionWindow: '7d',
                             });
 
                             newConversions++;
