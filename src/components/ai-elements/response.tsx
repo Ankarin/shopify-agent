@@ -192,7 +192,7 @@ const components: Options["components"] = {
 
     return (
       <a
-        className={cn("font-medium text-primary underline break-all", className)}
+        className={cn("font-medium underline break-all", className)}
         rel="noreferrer"
         target="_blank"
         {...props}

@@ -27,6 +27,8 @@ export const chats = pgTable("chats", {
   escalated: integer("escalated").default(0).notNull(),
   resolved: integer("resolved").default(0).notNull(),
   afterHours: integer("after_hours").default(0).notNull(),
+  questionTopic: text("question_topic"),
+  questionText: text("question_text"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
@@ -72,22 +74,12 @@ export const chatConversions = pgTable("chat_conversions", {
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
-export const chatMessages = pgTable("chat_messages", {
-  id: uuid("id").primaryKey().defaultRandom(),
-  chatId: uuid("chat_id").references(() => chats.id, { onDelete: "cascade" }).notNull(),
-  role: varchar("role", { length: 20 }).notNull(),
-  content: text("content").notNull(),
-  metadata: json("metadata"),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-});
-
 export const chatsRelations = relations(chats, ({ one, many }) => ({
   organization: one(organizations, {
     fields: [chats.organizationId],
     references: [organizations.id],
   }),
   conversions: many(chatConversions),
-  messages: many(chatMessages),
 }));
 
 export const organizationsRelations = relations(organizations, ({ many, one }) => ({
@@ -114,13 +106,6 @@ export const chatConversionsRelations = relations(chatConversions, ({ one }) => 
   organization: one(organizations, {
     fields: [chatConversions.organizationId],
     references: [organizations.id],
-  }),
-}));
-
-export const chatMessagesRelations = relations(chatMessages, ({ one }) => ({
-  chat: one(chats, {
-    fields: [chatMessages.chatId],
-    references: [chats.id],
   }),
 }));
 

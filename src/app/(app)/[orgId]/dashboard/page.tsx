@@ -24,6 +24,7 @@ interface Analytics {
         inProgress: number;
     };
     topQuestions: Array<{
+        topic: string;
         question: string;
         count: number;
     }>;
@@ -178,6 +179,11 @@ export default function DashboardPage() {
                                 {analytics.topQuestions.slice(0, 5).map((q, idx) => (
                                     <div key={idx} className="flex items-start justify-between pb-3 border-b last:border-0">
                                         <div className="flex-1 pr-4">
+                                            <div className="flex items-center gap-2 mb-1">
+                                                <span className="text-xs px-2 py-0.5 bg-primary/10 text-primary rounded-full font-medium">
+                                                    {q.topic?.replace(/_/g, ' ')}
+                                                </span>
+                                            </div>
                                             <p className="text-sm font-medium">{q.question}</p>
                                         </div>
                                         <div className="flex items-center gap-2">

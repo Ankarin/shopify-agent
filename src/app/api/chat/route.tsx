@@ -13,6 +13,9 @@ import {
     createListProductsTool
 } from "@/tools/shopify";
 import { createEscalateToHumanTool } from "@/tools/escalate-to-human";
+import { createMarkAsResolvedTool } from "@/tools/mark-resolved";
+import { createMarkAsUnresolvedTool } from "@/tools/mark-unresolved";
+import { createClassifyQuestionTool } from "@/tools/classify-question";
 
 const redis = new Redis({
     token: process.env.UPSTASH_REDIS_REST_TOKEN,
@@ -93,6 +96,37 @@ Be friendly, helpful, and proactive. When customers ask about orders, products, 
 - If a customer asks "Where is my order?", ask for their email, phone number, or order number to look it up
 - When you retrived some data from Shopify, don't just stop, continue the conversation with the customer and explain what you found.
 
+QUESTION CLASSIFICATION:
+As soon as you understand what the customer's main question or inquiry is about, use the "classifyQuestion" tool to categorize it. Choose from these topics:
+- ORDERS (placing, changing, canceling orders)
+- TRACKING (tracking numbers, delivery status)
+- SHIPPING_DELIVERY (shipping costs, delivery times, methods)
+- PRODUCTS (materials, features, specifications)
+- PAYMENTS (payment methods, failed payments, refunds)
+- DISCOUNTS_OFFERS (promo codes, sales, loyalty programs)
+- ACCOUNT_MANAGEMENT (login, password, account settings)
+- PRODUCT_ISSUES_FAULTY (damaged items, defects, wrong items)
+- SIZING_FIT (size guides, fit recommendations)
+- STOCK_AVAILABILITY (in stock, restocks, store locations)
+- POLICIES_TERMS (returns, warranties, privacy)
+- LOYALTY_SUBSCRIPTIONS (rewards, subscriptions)
+- GENERAL_PRE_SALE (general inquiries, contact info)
+
+RESOLUTION TRACKING:
+You must mark conversations as either RESOLVED or UNRESOLVED:
+
+Use "markAsResolved" when:
+- You successfully answered their question (FAQ, product info, order tracking, etc.)
+- You provided clear next steps (e.g., "To start a return, email info@evolvepro.uk with your order number")
+- You understood the intent and gave helpful guidance
+- The customer got what they needed from you
+
+Use "markAsUnresolved" ONLY when:
+- You genuinely do NOT understand what the customer is asking
+- You must give a fallback message like "Sorry, I can't answer that right now. Please email [support] with your inquiry."
+- The question is completely outside your knowledge or capabilities
+- You cannot comprehend the customer's intent at all
+
 ESCALATION GUIDELINES:
 You have access to an "escalateToHuman" tool. Use it when:
 - The customer explicitly asks to speak with a human
@@ -107,7 +141,10 @@ IMPORTANT: When sharing support contact information (emails, phone numbers), alw
 `;
 
     const tools: any = {
+        classifyQuestion: createClassifyQuestionTool(id),
         escalateToHuman: createEscalateToHumanTool(id),
+        markAsResolved: createMarkAsResolvedTool(id),
+        markAsUnresolved: createMarkAsUnresolvedTool(id),
     };
 
     if (organization.shopifyDomain && organization.shopifyAccessToken) {

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/db";
-import { chats, chatConversions, chatMessages, organizations } from "@/db/schema";
+import { chats, chatConversions, organizations } from "@/db/schema";
 import { sql, desc, gte, and, eq } from "drizzle-orm";
 
 export async function GET(req: NextRequest) {
