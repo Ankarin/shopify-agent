@@ -429,7 +429,7 @@ Order ${order.name}
 Status: ${order.displayFulfillmentStatus || 'UNFULFILLED'}
 Payment: ${order.displayFinancialStatus}
 Total: ${order.totalPriceSet.shopMoney.currencyCode} $${order.totalPriceSet.shopMoney.amount}
-Date: ${new Date(order.createdAt).toLocaleDateString()}
+Date: ${new Date(order.createdAt).toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' })}
 
 Items:
 ${items}
