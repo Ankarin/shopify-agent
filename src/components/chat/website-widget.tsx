@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { MessageSquare, X } from "lucide-react";
+import { useRouter } from "next/navigation";
 import {
   DEFAULT_WIDGET_CONFIG,
   type WidgetCustomization,
@@ -15,6 +16,7 @@ interface WebsiteWidgetProps {
   chatId: string;
   customization?: WidgetCustomization;
   isLoading?: boolean;
+  embedded?: boolean;
 }
 
 export function WebsiteWidget({
@@ -22,7 +24,9 @@ export function WebsiteWidget({
   chatId,
   customization,
   isLoading = false,
+  embedded = false,
 }: WebsiteWidgetProps) {
+  const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
   const [loadedCustomization, setLoadedCustomization] =
     useState<WidgetCustomization | null>(null);
@@ -32,6 +36,15 @@ export function WebsiteWidget({
   useEffect(() => {
     setCurrentChatId(chatId);
   }, [chatId]);
+
+  const handleChatIdChange = (newChatId: string) => {
+    setCurrentChatId(newChatId);
+
+    const newUrl = `/${orgId}/dashboard?chatId=${newChatId}`;
+    window.history.pushState({}, '', newUrl);
+
+    window.dispatchEvent(new CustomEvent('chatCreated', { detail: { chatId: newChatId } }));
+  };
 
   // Notify parent window about widget state changes
   useEffect(() => {
@@ -111,11 +124,38 @@ export function WebsiteWidget({
         : DEFAULT_WIDGET_CONFIG.showBranding,
   };
 
+  if (embedded) {
+    return (
+      <div
+        className="w-full h-full flex flex-col"
+        style={{
+          backgroundColor: config.backgroundColor,
+          color: config.textPrimaryColor,
+        }}
+      >
+        <div
+          className="flex-1 overflow-hidden flex flex-col p-5"
+          style={{
+            backgroundColor: config.backgroundColor,
+          }}
+        >
+          <ChatSection
+            key={currentChatId}
+            chatId={currentChatId}
+            orgId={orgId}
+            config={config}
+            onChatIdChange={handleChatIdChange}
+          />
+        </div>
+      </div>
+    );
+  }
+
   return (
     <>
       {isOpen && (
         <div
-          className="fixed bottom-0 right-0 md:bottom-24 md:right-6 w-full h-full md:w-[420px] md:h-[650px] md:rounded-2xl shadow-2xl flex flex-col z-50"
+          className="fixed bottom-0 right-0 md:bottom-4 md:right-6 w-full h-full md:w-[420px] md:h-[650px] md:rounded-2xl shadow-2xl flex flex-col z-50"
           style={{
             backgroundColor: config.backgroundColor,
             color: config.textPrimaryColor,
@@ -180,7 +220,7 @@ export function WebsiteWidget({
               chatId={currentChatId}
               orgId={orgId}
               config={config}
-              onChatIdChange={setCurrentChatId}
+              onChatIdChange={handleChatIdChange}
             />
           </div>
 

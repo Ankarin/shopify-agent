@@ -39,6 +39,17 @@ export function AppSidebar() {
         }
     }, [currentOrgId])
 
+    useEffect(() => {
+        const handleChatCreated = () => {
+            if (currentOrgId) {
+                fetchChats(currentOrgId)
+            }
+        }
+
+        window.addEventListener('chatCreated', handleChatCreated)
+        return () => window.removeEventListener('chatCreated', handleChatCreated)
+    }, [currentOrgId])
+
     const fetchChats = async (orgId: string) => {
         try {
             const response = await fetch(`/api/organizations/${orgId}/chats`)
@@ -51,40 +62,10 @@ export function AppSidebar() {
         }
     }
 
-    const handleCreateChat = async () => {
-        if (!currentOrgId) return
-
-        try {
-            const response = await fetch(`/api/organizations/${currentOrgId}/chats`, {
-                method: "POST",
-            })
-
-            if (!response.ok) {
-                throw new Error("Failed to create chat")
-            }
-
-            const newChat = await response.json()
-            setChats([newChat, ...chats])
-            router.push(`/${currentOrgId}/chat/${newChat.id}`)
-        } catch (error) {
-            toast.error("Failed to create chat")
-        }
-    }
-
     return (
         <Sidebar>
             {currentOrgId ? (
                 <>
-                    <SidebarHeader className="p-4">
-                        <Button
-                            onClick={handleCreateChat}
-                            className="w-full"
-                            size="sm"
-                        >
-                            <Plus className="h-4 w-4" />
-                            New Chat
-                        </Button>
-                    </SidebarHeader>
                     <SidebarContent>
                         <SidebarGroup>
                             <SidebarGroupContent>
@@ -126,8 +107,8 @@ export function AppSidebar() {
                                     {chats.map((chat) => (
                                         <SidebarMenuItem key={chat.id}>
                                             <SidebarMenuButton
-                                                onClick={() => router.push(`/${currentOrgId}/chat/${chat.id}`)}
-                                                isActive={params?.chatId === chat.id}
+                                                onClick={() => router.push(`/${currentOrgId}/dashboard?chatId=${chat.id}`)}
+                                                isActive={pathname.includes(`chatId=${chat.id}`)}
                                             >
                                                 <MessageSquare className="h-4 w-4" />
                                                 <span>Chat {new Date(chat.createdAt).toLocaleString()}</span>
