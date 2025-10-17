@@ -1,8 +1,11 @@
 import { tool } from "ai";
 import { z } from "zod";
 import { ShopifyClient } from "@/lib/shopify/client";
+import { db } from "@/db";
+import { chats } from "@/db/schema";
+import { eq } from "drizzle-orm";
 
-export const createLookupOrderByPhoneTool = (shopifyClient: ShopifyClient) => tool({
+export const createLookupOrderByPhoneTool = (shopifyClient: ShopifyClient, chatId: string) => tool({
     description: 'Look up orders for a customer using their phone number. Use this when a customer asks about their order and provides their phone number.',
     inputSchema: z.object({
         phone: z.string().describe('The customer phone number'),
@@ -22,6 +25,11 @@ export const createLookupOrderByPhoneTool = (shopifyClient: ShopifyClient) => to
                 console.log('⚠️ [Tool: lookupOrderByPhone] No orders found for phone:', phone);
                 throw new Error('No orders found for this phone number.');
             }
+
+            await db.update(chats)
+                .set({ customerPhone: phone })
+                .where(eq(chats.id, chatId));
+            console.log(`💾 [Tool: lookupOrderByPhone] Saved phone to chat ${chatId}`);
 
             const formattedOrders = orders.map(order => shopifyClient.formatOrderInfo(order)).join('\n\n---\n\n');
             console.log(`✅ [Tool: lookupOrderByPhone] Success - Returning ${orders.length} formatted orders`);

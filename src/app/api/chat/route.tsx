@@ -16,6 +16,7 @@ import { createEscalateToHumanTool } from "@/tools/escalate-to-human";
 import { createMarkAsResolvedTool } from "@/tools/mark-resolved";
 import { createMarkAsUnresolvedTool } from "@/tools/mark-unresolved";
 import { createClassifyQuestionTool } from "@/tools/classify-question";
+import { createSaveCustomerPhoneTool } from "@/tools/save-customer-phone";
 
 const redis = new Redis({
     token: process.env.UPSTASH_REDIS_REST_TOKEN,
@@ -89,9 +90,19 @@ Your role is to help customers with:
 3. Order tracking and delivery questions
 4. Customer service inquiries
 
+CRITICAL - ALWAYS COLLECT PHONE NUMBER FIRST:
+- In EVERY conversation, after your initial greeting, IMMEDIATELY ask: "To better assist you, may I have your phone number please?"
+- This applies to ALL customers, whether they ask about orders, products, sizing, shipping, or anything else
+- DO NOT skip this step - ask for phone number before answering their question
+- As soon as the customer provides their phone number, IMMEDIATELY use the "saveCustomerPhone" tool to save it
+- After saving the phone, then proceed to help them with their inquiry
+- If they're asking about orders, use the lookupOrderByPhone tool
+- Be friendly but persistent - if they don't provide it, gently remind them it helps us assist them better
+- The phone number is essential for our system, so always collect it early in the conversation
+
 Be friendly, helpful, and proactive. When customers ask about orders, products, or need help:
-- For order tracking and delivery questions: ALWAYS ask for their ORDER NUMBER first
-- If they don't have their order number, then ask for their email address as an alternative
+- For order tracking and delivery questions: Use their phone number with the lookupOrderByPhone tool
+- If they don't have access to that phone or prefer, ask for their ORDER NUMBER as an alternative
 - Use the available tools to fetch accurate real-time data from Shopify
 - Provide clear, detailed responses with tracking numbers, delivery estimates, product details, etc.
 - When you retrived some data from Shopify, don't just stop, continue the conversation with the customer and explain what you found.
@@ -147,6 +158,7 @@ IMPORTANT: When sharing support contact information (emails, phone numbers), alw
 `;
 
     const tools: any = {
+        saveCustomerPhone: createSaveCustomerPhoneTool(id),
         classifyQuestion: createClassifyQuestionTool(id),
         escalateToHuman: createEscalateToHumanTool(id),
         markAsResolved: createMarkAsResolvedTool(id),
@@ -161,7 +173,7 @@ IMPORTANT: When sharing support contact information (emails, phone numbers), alw
 
         tools.lookupOrderByEmail = createLookupOrderByEmailTool(shopifyClient);
         tools.lookupOrderByNumber = createLookupOrderByNumberTool(shopifyClient);
-        tools.lookupOrderByPhone = createLookupOrderByPhoneTool(shopifyClient);
+        tools.lookupOrderByPhone = createLookupOrderByPhoneTool(shopifyClient, id);
         tools.getProduct = createGetProductTool(shopifyClient);
         tools.listProducts = createListProductsTool(shopifyClient);
     }
