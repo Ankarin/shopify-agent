@@ -64,18 +64,19 @@ export async function GET(req: NextRequest) {
                 ),
 
             db.select({
-                content: chatMessages.content,
+                topic: chats.questionTopic,
+                question: chats.questionText,
                 count: sql<number>`count(*)::int`
             })
-                .from(chatMessages)
-                .innerJoin(chats, eq(chatMessages.chatId, chats.id))
+                .from(chats)
                 .where(
                     and(
-                        eq(chatMessages.role, 'user'),
-                        gte(chatMessages.createdAt, startDate)
+                        gte(chats.createdAt, startDate),
+                        sql`${chats.questionTopic} IS NOT NULL`,
+                        sql`${chats.questionText} IS NOT NULL`
                     )
                 )
-                .groupBy(chatMessages.content)
+                .groupBy(chats.questionTopic, chats.questionText)
                 .orderBy(desc(sql`count(*)`))
                 .limit(10),
 
@@ -109,9 +110,10 @@ export async function GET(req: NextRequest) {
         }, {} as Record<string, number>);
 
         const topQuestions = topQuestionsResult
-            .filter(q => q.content && q.content.trim().length > 0)
+            .filter(q => q.question && q.question.trim().length > 0)
             .map(q => ({
-                question: q.content.substring(0, 200),
+                topic: q.topic || 'GENERAL',
+                question: q.question?.substring(0, 200) || '',
                 count: q.count,
             }));
 
