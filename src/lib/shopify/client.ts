@@ -7,6 +7,7 @@ interface ShopifyOrder {
   id: string;
   name: string;
   email: string;
+  phone?: string;
   totalPriceSet: {
     shopMoney: {
       amount: string;
@@ -188,6 +189,7 @@ export class ShopifyClient {
               id
               name
               email
+              phone
               createdAt
               displayFinancialStatus
               displayFulfillmentStatus
@@ -231,12 +233,31 @@ export class ShopifyClient {
       }
     `;
 
-    const data = await this.graphqlRequest<{ orders: { edges: Array<{ node: ShopifyOrder }> } }>(
+    console.log('1', phone);
+    const data = await this.graphqlRequest<{ orders: { edges: Array<{ node: ShopifyOrder & { phone: string } }> } }>(
       query,
       { phone: `phone:${phone}`, limit }
     );
 
-    return data.orders.edges.map(edge => edge.node);
+    const orders = data.orders.edges.map(edge => edge.node);
+    console.log('2', orders);
+
+    const normalizePhone = (p: string) => p?.replace(/[\s\-\(\)]/g, '') || '';
+    const normalizedSearchPhone = normalizePhone(phone);
+
+    const filteredOrders = orders.filter(order => {
+      const orderPhone = normalizePhone(order.phone);
+      return orderPhone === normalizedSearchPhone;
+    });
+
+    console.log('3', 'Filtered orders:', filteredOrders.length, 'from', orders.length);
+
+    if (filteredOrders.length === 0 && orders.length > 0) {
+      console.log('⚠️ Warning: Shopify returned orders but none match phone:', phone);
+      console.log('Order phones:', orders.map(o => o.phone));
+    }
+
+    return filteredOrders;
   }
 
   async getOrderByNumber(orderNumber: string): Promise<ShopifyOrder | null> {
