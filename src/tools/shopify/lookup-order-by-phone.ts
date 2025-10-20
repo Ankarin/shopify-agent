@@ -24,8 +24,9 @@ export const createLookupOrderByPhoneTool = (shopifyClient: ShopifyClient, chatI
             }
 
             const phone = chat.customerPhone;
-
+            console.log(1, phone);
             const orders = await shopifyClient.getOrderByPhone(phone, limit);
+            console.log(2, orders);
             const duration = Date.now() - startTime;
 
             console.log(`📦 [Tool: lookupOrderByPhone] Found ${orders.length} orders in ${duration}ms`);

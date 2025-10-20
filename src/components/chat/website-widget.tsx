@@ -140,7 +140,6 @@ export function WebsiteWidget({
           }}
         >
           <ChatSection
-            key={currentChatId}
             chatId={currentChatId}
             orgId={orgId}
             config={config}
@@ -216,7 +215,6 @@ export function WebsiteWidget({
             }}
           >
             <ChatSection
-              key={currentChatId}
               chatId={currentChatId}
               orgId={orgId}
               config={config}

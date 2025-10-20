@@ -52,6 +52,7 @@ export function ChatSection({
   const [customerInfo, setCustomerInfo] = useState<CustomerInfo | null>(null);
   const [showPreChatForm, setShowPreChatForm] = useState(true);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const justCreatedChatRef = useRef(false);
 
   const transport = useMemo(
     () =>
@@ -90,16 +91,28 @@ export function ChatSection({
   };
 
   useEffect(() => {
-    const storedInfo = localStorage.getItem(`widget-customer-info-${orgId}`);
+    if (chatId === CHAT_NOT_CREATED) {
+      if (!customerInfo) {
+        setShowPreChatForm(true);
+      }
+      return;
+    }
+
+    if (justCreatedChatRef.current) {
+      return;
+    }
+
+    const storedInfo = localStorage.getItem(`widget-customer-info-${orgId}-${chatId}`);
     if (storedInfo) {
       try {
-        setCustomerInfo(JSON.parse(storedInfo));
+        const parsedInfo = JSON.parse(storedInfo);
+        setCustomerInfo(parsedInfo);
         setShowPreChatForm(false);
       } catch (e) {
         console.error("Failed to parse stored customer info:", e);
       }
     }
-  }, [orgId]);
+  }, [orgId, chatId]);
 
   useEffect(() => {
     const initializeChat = async () => {
@@ -120,6 +133,13 @@ export function ChatSection({
 
       if (chatId === CHAT_NOT_CREATED) {
         console.log("⚠️ [ChatSection] Chat not created yet, skipping history load");
+        setIsInitialized(true);
+        return;
+      }
+
+      if (justCreatedChatRef.current) {
+        console.log("⚠️ [ChatSection] Just created chat, skipping history load");
+        justCreatedChatRef.current = false;
         setIsInitialized(true);
         return;
       }
@@ -163,7 +183,9 @@ export function ChatSection({
 
   const handlePreChatFormSubmit = (data: CustomerInfo) => {
     setCustomerInfo(data);
-    localStorage.setItem(`widget-customer-info-${orgId}`, JSON.stringify(data));
+    if (chatId !== CHAT_NOT_CREATED) {
+      localStorage.setItem(`widget-customer-info-${orgId}-${chatId}`, JSON.stringify(data));
+    }
     setShowPreChatForm(false);
   };
 
@@ -194,6 +216,12 @@ export function ChatSection({
 
         const newChat = await response.json();
         const newChatId = newChat.id;
+
+        if (customerInfo) {
+          localStorage.setItem(`widget-customer-info-${orgId}-${newChatId}`, JSON.stringify(customerInfo));
+        }
+
+        justCreatedChatRef.current = true;
         onChatIdChange(newChatId);
         localStorage.setItem(`widget-chat-${orgId}`, newChatId);
 
