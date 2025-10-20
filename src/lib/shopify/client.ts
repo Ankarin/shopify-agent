@@ -324,9 +324,6 @@ export class ShopifyClient {
                               name
                               quantity
                             }
-                            location {
-                              name
-                            }
                           }
                         }
                       }

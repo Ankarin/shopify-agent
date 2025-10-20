@@ -11,20 +11,10 @@ export const createLookupOrderByNumberTool = (shopifyClient: ShopifyClient, chat
         orderNumber: z.string().describe('The order number, including the # symbol if provided'),
     }),
     execute: async ({ orderNumber }) => {
-        console.log('🔍 [Tool: lookupOrderByNumber] Called with order number:', orderNumber, 'chatId:', chatId);
+        console.log('🔍 [Tool: lookupOrderByNumber] Called with order number:', orderNumber);
         const startTime = Date.now();
 
         try {
-            const chat = await db.query.chats.findFirst({
-                where: eq(chats.id, chatId),
-            });
-
-            if (!chat || !chat.customerEmail) {
-                throw new Error('Customer email not found. Please provide your contact information.');
-            }
-
-            const customerEmail = chat.customerEmail.toLowerCase();
-
             const order = await shopifyClient.getOrderByNumber(orderNumber);
             const duration = Date.now() - startTime;
 
@@ -33,12 +23,7 @@ export const createLookupOrderByNumberTool = (shopifyClient: ShopifyClient, chat
                 throw new Error(`Order ${orderNumber} not found.`);
             }
 
-            if (!order.email || order.email.toLowerCase() !== customerEmail) {
-                console.log(`🔒 [Tool: lookupOrderByNumber] Order email mismatch - Order: ${order.email}, Customer: ${customerEmail}`);
-                throw new Error(`Order ${orderNumber} not found or does not belong to your account.`);
-            }
-
-            console.log(`✅ [Tool: lookupOrderByNumber] Success in ${duration}ms - Order found and verified:`, {
+            console.log(`✅ [Tool: lookupOrderByNumber] Success in ${duration}ms - Order found:`, {
                 orderNumber,
                 orderId: order.id,
             });
@@ -47,7 +32,6 @@ export const createLookupOrderByNumberTool = (shopifyClient: ShopifyClient, chat
             const duration = Date.now() - startTime;
             console.error(`❌ [Tool: lookupOrderByNumber] Error after ${duration}ms:`, {
                 orderNumber,
-                chatId,
                 error: error.message,
                 stack: error.stack,
             });

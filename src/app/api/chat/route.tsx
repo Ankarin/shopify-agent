@@ -6,7 +6,6 @@ import { chats, organizations } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import { ShopifyClient } from "@/lib/shopify/client";
 import {
-    createLookupOrderByEmailTool,
     createLookupOrderByNumberTool,
     createLookupOrderByPhoneTool,
     createGetProductTool,
@@ -16,7 +15,6 @@ import { createEscalateToHumanTool } from "@/tools/escalate-to-human";
 import { createMarkAsResolvedTool } from "@/tools/mark-resolved";
 import { createMarkAsUnresolvedTool } from "@/tools/mark-unresolved";
 import { createClassifyQuestionTool } from "@/tools/classify-question";
-import { createSaveCustomerEmailTool } from "@/tools/save-customer-email";
 
 const redis = new Redis({
     token: process.env.UPSTASH_REDIS_REST_TOKEN,
@@ -87,8 +85,7 @@ ${organization.data ? `- Store Data: ${JSON.stringify(organization.data, null, 2
 Customer Information:
 - The customer has provided their name and phone number before starting this chat
 - DO NOT ask for their name or phone number again - you already have it
-- If they want to check orders or tracking, you'll need their email address for verification
-- When they provide their email, use the "saveCustomerEmail" tool IMMEDIATELY to save it
+- You can look up their orders using their phone number directly
 
 Your role is to help customers with:
 1. FAQs and general store questions
@@ -97,10 +94,9 @@ Your role is to help customers with:
 4. Customer service inquiries
 
 Be friendly, helpful, and proactive. When customers ask about orders:
-- If they want to check order status or tracking, politely ask: "To look up your orders, may I have the email address you used when placing your order?"
-- Once they provide their email, use the "saveCustomerEmail" tool to save it
-- Then use the lookupOrderByPhone or lookupOrderByEmail tool to retrieve their orders
+- Use the lookupOrderByPhone tool to retrieve their orders (you already have their phone)
 - If they mention a specific order number, use the lookupOrderByNumber tool
+- If they provide an email address, you can use lookupOrderByEmail tool
 - Use the available tools to fetch accurate real-time data from Shopify
 - Provide clear, detailed responses with tracking numbers, delivery estimates, product details, etc.
 - When you retrieve data from Shopify, explain what you found clearly to the customer
@@ -156,7 +152,6 @@ IMPORTANT: When sharing support contact information (emails, phone numbers), alw
 `;
 
     const tools: any = {
-        saveCustomerEmail: createSaveCustomerEmailTool(id),
         classifyQuestion: createClassifyQuestionTool(id),
         escalateToHuman: createEscalateToHumanTool(id),
         markAsResolved: createMarkAsResolvedTool(id),
@@ -169,7 +164,6 @@ IMPORTANT: When sharing support contact information (emails, phone numbers), alw
             accessToken: organization.shopifyAccessToken,
         });
 
-        tools.lookupOrderByEmail = createLookupOrderByEmailTool(shopifyClient, id);
         tools.lookupOrderByNumber = createLookupOrderByNumberTool(shopifyClient, id);
         tools.lookupOrderByPhone = createLookupOrderByPhoneTool(shopifyClient, id);
         tools.getProduct = createGetProductTool(shopifyClient);

@@ -20,34 +20,23 @@ export const createLookupOrderByPhoneTool = (shopifyClient: ShopifyClient, chatI
             });
 
             if (!chat || !chat.customerPhone) {
-                throw new Error('Customer phone not found. Please provide your phone number.');
-            }
-
-            if (!chat.customerEmail) {
-                throw new Error('To view your orders, I need to verify your email address. Please provide the email address you used when placing your order.');
+                throw new Error('Customer phone not found.');
             }
 
             const phone = chat.customerPhone;
-            const customerEmail = chat.customerEmail.toLowerCase();
 
             const orders = await shopifyClient.getOrderByPhone(phone, limit);
             const duration = Date.now() - startTime;
 
             console.log(`📦 [Tool: lookupOrderByPhone] Found ${orders.length} orders in ${duration}ms`);
 
-            const customerOrders = orders.filter(order =>
-                order.email && order.email.toLowerCase() === customerEmail
-            );
-
-            console.log(`🔒 [Tool: lookupOrderByPhone] Filtered to ${customerOrders.length} orders matching customer email`);
-
-            if (customerOrders.length === 0) {
-                console.log('⚠️ [Tool: lookupOrderByPhone] No orders found for this customer');
-                throw new Error('No orders found for your account with the provided email.');
+            if (orders.length === 0) {
+                console.log('⚠️ [Tool: lookupOrderByPhone] No orders found');
+                throw new Error('No orders found for this phone number.');
             }
 
-            const formattedOrders = customerOrders.map(order => shopifyClient.formatOrderInfo(order)).join('\n\n---\n\n');
-            console.log(`✅ [Tool: lookupOrderByPhone] Success - Returning ${customerOrders.length} formatted orders`);
+            const formattedOrders = orders.map(order => shopifyClient.formatOrderInfo(order)).join('\n\n---\n\n');
+            console.log(`✅ [Tool: lookupOrderByPhone] Success - Returning ${orders.length} formatted orders`);
             return formattedOrders;
         } catch (error: any) {
             const duration = Date.now() - startTime;
