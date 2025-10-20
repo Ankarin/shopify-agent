@@ -21,6 +21,7 @@ export const organizations = pgTable("organizations", {
 export const chats = pgTable("chats", {
   id: uuid("id").primaryKey().defaultRandom(),
   organizationId: uuid("organization_id").references(() => organizations.id, { onDelete: "cascade" }),
+  customerName: text("customer_name"),
   customerEmail: text("customer_email"),
   customerPhone: text("customer_phone"),
   messageCount: integer("message_count").default(0).notNull(),

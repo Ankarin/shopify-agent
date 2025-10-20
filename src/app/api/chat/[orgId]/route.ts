@@ -15,17 +15,21 @@ export async function OPTIONS() {
 }
 
 export async function POST(
-    _request: NextRequest,
+    request: NextRequest,
     { params }: { params: Promise<{ orgId: string }> }
 ) {
     try {
         const { orgId } = await params;
+        const body = await request.json();
 
-        // Create new chat for public widget (no auth required)
+        const { customerName, customerPhone } = body;
+
         const newChat = await db
             .insert(chats)
             .values({
                 organizationId: orgId,
+                customerName: customerName || null,
+                customerPhone: customerPhone || null,
             })
             .returning();
 
@@ -40,7 +44,7 @@ export async function POST(
         console.error("Error creating widget chat:", error);
         return NextResponse.json(
             { error: "Failed to create chat" },
-            { 
+            {
                 status: 500,
                 headers: {
                     'Access-Control-Allow-Origin': '*',

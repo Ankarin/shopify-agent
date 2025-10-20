@@ -22,6 +22,7 @@ import { Response } from "@/components/ai-elements/response";
 import { Loader } from "@/components/ai-elements/loader";
 import type { WidgetCustomization } from "@/lib/widget/defaults";
 import { CHAT_NOT_CREATED } from "@/lib/chat/constants";
+import { PreChatForm } from "./pre-chat-form";
 
 interface MessagePart {
   type: string;
@@ -35,6 +36,11 @@ interface ChatSectionProps {
   onChatIdChange: (newChatId: string) => void;
 }
 
+interface CustomerInfo {
+  name: string;
+  phone: string;
+}
+
 export function ChatSection({
   chatId,
   orgId,
@@ -43,6 +49,8 @@ export function ChatSection({
 }: ChatSectionProps) {
   const [input, setInput] = useState("");
   const [isInitialized, setIsInitialized] = useState(false);
+  const [customerInfo, setCustomerInfo] = useState<CustomerInfo | null>(null);
+  const [showPreChatForm, setShowPreChatForm] = useState(true);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const transport = useMemo(
@@ -82,6 +90,18 @@ export function ChatSection({
   };
 
   useEffect(() => {
+    const storedInfo = localStorage.getItem(`widget-customer-info-${orgId}`);
+    if (storedInfo) {
+      try {
+        setCustomerInfo(JSON.parse(storedInfo));
+        setShowPreChatForm(false);
+      } catch (e) {
+        console.error("Failed to parse stored customer info:", e);
+      }
+    }
+  }, [orgId]);
+
+  useEffect(() => {
     const initializeChat = async () => {
       console.log("🔄 [ChatSection] Initializing chat:", {
         chatId,
@@ -92,14 +112,12 @@ export function ChatSection({
         orgIdLength: orgId?.length,
       });
 
-      // Check if parameters are valid
       if (!orgId || !chatId) {
         console.error("❌ [ChatSection] Missing orgId or chatId:", { orgId, chatId });
         setIsInitialized(true);
         return;
       }
 
-      // Don't load history if chat hasn't been created yet
       if (chatId === CHAT_NOT_CREATED) {
         console.log("⚠️ [ChatSection] Chat not created yet, skipping history load");
         setIsInitialized(true);
@@ -123,7 +141,6 @@ export function ChatSection({
       } catch (error) {
         console.error("❌ [ChatSection] Failed to initialize chat:", error);
       } finally {
-        // Always initialize, even if there was an error
         setIsInitialized(true);
         console.log("✅ [ChatSection] Chat initialized");
       }
@@ -144,6 +161,12 @@ export function ChatSection({
     scrollToBottom();
   }, [messages]);
 
+  const handlePreChatFormSubmit = (data: CustomerInfo) => {
+    setCustomerInfo(data);
+    localStorage.setItem(`widget-customer-info-${orgId}`, JSON.stringify(data));
+    setShowPreChatForm(false);
+  };
+
   const handleSubmit = async (message: PromptInputMessage) => {
     const hasText = Boolean(message.text);
     const hasAttachments = Boolean(message.files?.length);
@@ -156,6 +179,13 @@ export function ChatSection({
       try {
         const response = await fetch(`/api/chat/${orgId}`, {
           method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            customerName: customerInfo?.name,
+            customerPhone: customerInfo?.phone,
+          }),
         });
 
         if (!response.ok) {
@@ -302,6 +332,10 @@ export function ChatSection({
         <Loader />
       </div>
     );
+  }
+
+  if (showPreChatForm) {
+    return <PreChatForm config={config} onSubmit={handlePreChatFormSubmit} />;
   }
 
   return (
