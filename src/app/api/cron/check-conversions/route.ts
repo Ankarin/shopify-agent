@@ -6,9 +6,10 @@ import { ShopifyClient } from "@/lib/shopify/client";
 
 export async function GET(req: NextRequest) {
     const authHeader = req.headers.get('authorization');
-    const cronSecret = process.env.CRON_SECRET || 'dev-secret';
+    const vercelCronHeader = req.headers.get('x-vercel-cron-id');
+    const cronSecret = process.env.CRON_SECRET;
 
-    if (authHeader !== `Bearer ${cronSecret}`) {
+    if (!vercelCronHeader && authHeader !== `Bearer ${cronSecret}`) {
         return NextResponse.json(
             { error: 'Unauthorized' },
             { status: 401 }
