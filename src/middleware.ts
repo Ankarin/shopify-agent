@@ -9,7 +9,12 @@ const isPublicRoute = createRouteMatcher([
     "/api/organizations/(.+)/widget-settings",
     "/iframe-test(.*)"
 ]);
+const isCronRoute = createRouteMatcher(["/api/cron/(.*)"]);
 export default clerkMiddleware(async (auth, req) => {
+    if (isCronRoute(req)) {
+        return NextResponse.next();
+    }
+
     if (isPublicRoute(req)) {
         const response = NextResponse.next();
         response.headers.delete('X-Frame-Options');

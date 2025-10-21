@@ -5,16 +5,6 @@ import { eq, and, gte, isNull, sql } from "drizzle-orm";
 import { ShopifyClient } from "@/lib/shopify/client";
 
 export async function GET(req: NextRequest) {
-    const authHeader = req.headers.get('authorization');
-    const vercelCronHeader = req.headers.get('x-vercel-cron-id');
-    const cronSecret = process.env.CRON_SECRET;
-
-    if (!vercelCronHeader && authHeader !== `Bearer ${cronSecret}`) {
-        return NextResponse.json(
-            { error: 'Unauthorized' },
-            { status: 401 }
-        );
-    }
 
     try {
         const windowDays = 7;
