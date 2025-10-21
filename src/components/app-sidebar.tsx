@@ -27,6 +27,7 @@ interface Chat {
 
 export function AppSidebar() {
     const [chats, setChats] = useState<Chat[]>([])
+    const [isCreatingChat, setIsCreatingChat] = useState(false)
     const router = useRouter()
     const params = useParams()
     const pathname = usePathname()
@@ -59,6 +60,34 @@ export function AppSidebar() {
             }
         } catch (error) {
             console.error("Error fetching chats:", error)
+        }
+    }
+
+    const handleCreateNewChat = async () => {
+        if (!currentOrgId || isCreatingChat) return
+
+        setIsCreatingChat(true)
+        try {
+            const response = await fetch(`/api/organizations/${currentOrgId}/chats`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+            })
+
+            if (!response.ok) {
+                throw new Error("Failed to create chat")
+            }
+
+            const newChat = await response.json()
+            await fetchChats(currentOrgId)
+            router.push(`/${currentOrgId}/dashboard/chats/${newChat.id}`)
+            toast.success("New chat created")
+        } catch (error) {
+            console.error("Error creating chat:", error)
+            toast.error("Failed to create new chat")
+        } finally {
+            setIsCreatingChat(false)
         }
     }
 
@@ -103,12 +132,24 @@ export function AppSidebar() {
                         <SidebarGroup>
                             <SidebarGroupLabel>Chats</SidebarGroupLabel>
                             <SidebarGroupContent>
+                                <div className="px-2 pb-2">
+                                    <Button
+                                        size="sm"
+                                        variant="outline"
+                                        onClick={handleCreateNewChat}
+                                        disabled={isCreatingChat}
+                                        className="w-full"
+                                    >
+                                        <Plus className="h-4 w-4 mr-2" />
+                                        New Chat
+                                    </Button>
+                                </div>
                                 <SidebarMenu>
                                     {chats.map((chat) => (
                                         <SidebarMenuItem key={chat.id}>
                                             <SidebarMenuButton
-                                                onClick={() => router.push(`/${currentOrgId}/dashboard?chatId=${chat.id}`)}
-                                                isActive={pathname.includes(`chatId=${chat.id}`)}
+                                                onClick={() => router.push(`/${currentOrgId}/dashboard/chats/${chat.id}`)}
+                                                isActive={pathname.includes(`/dashboard/chats/${chat.id}`)}
                                             >
                                                 <MessageSquare className="h-4 w-4" />
                                                 <span>Chat {new Date(chat.createdAt).toLocaleString()}</span>

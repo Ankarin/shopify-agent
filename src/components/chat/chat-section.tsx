@@ -378,7 +378,7 @@ export function ChatSection({
 
       <PromptInput
         onSubmit={handleSubmit}
-        className="mt-4 backdrop-blur-sm rounded-xl shadow-sm"
+        className="mt-4 flex-shrink-0 backdrop-blur-sm rounded-xl shadow-sm"
         style={{
           backgroundColor: config.backgroundColor,
           border: `1px solid ${config.borderColor}`,
