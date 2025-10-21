@@ -25,7 +25,6 @@ export async function GET(req: NextRequest) {
                 chatId: chats.id,
                 orgId: chats.organizationId,
                 email: chats.customerEmail,
-                phone: chats.customerPhone,
                 chatCreatedAt: chats.createdAt,
                 shopifyDomain: organizations.shopifyDomain,
                 shopifyAccessToken: organizations.shopifyAccessToken,
@@ -35,7 +34,7 @@ export async function GET(req: NextRequest) {
             .where(
                 and(
                     gte(chats.createdAt, startTime),
-                    sql`(${chats.customerEmail} IS NOT NULL OR ${chats.customerPhone} IS NOT NULL)`,
+                    sql`${chats.customerEmail} IS NOT NULL`,
                     sql`${organizations.shopifyDomain} IS NOT NULL`,
                     sql`${organizations.shopifyAccessToken} IS NOT NULL`
                 )
@@ -54,8 +53,6 @@ export async function GET(req: NextRequest) {
                 let orders: any[] = [];
                 if (chat.email) {
                     orders = await shopifyClient.getOrderByEmail(chat.email, 10);
-                } else if (chat.phone) {
-                    orders = await shopifyClient.getOrderByPhone(chat.phone, 10);
                 }
 
                 for (const order of orders) {
@@ -79,7 +76,6 @@ export async function GET(req: NextRequest) {
                                 chatId: chat.chatId!,
                                 organizationId: chat.orgId!,
                                 customerEmail: chat.email || undefined,
-                                customerPhone: chat.phone || undefined,
                                 shopifyOrderId: order.id,
                                 orderNumber: order.name,
                                 orderAmount: order.totalPriceSet.shopMoney.amount,

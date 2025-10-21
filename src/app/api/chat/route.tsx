@@ -7,7 +7,7 @@ import { eq } from "drizzle-orm";
 import { ShopifyClient } from "@/lib/shopify/client";
 import {
     createLookupOrderByNumberTool,
-    createLookupOrderByPhoneTool,
+    createLookupOrderByEmailTool,
     createGetProductTool,
     createListProductsTool
 } from "@/tools/shopify";
@@ -84,10 +84,10 @@ ${organization.data ? `- Store Data: ${JSON.stringify(organization.data, null, 2
 
 Customer Information:
 - Customer Name: ${chat.customerName || 'Not provided'}
-- Customer Phone: ${chat.customerPhone || 'Not provided'}
+- Customer Email: ${chat.customerEmail || 'Not provided'}
 - The customer has provided this information before starting the chat
-- DO NOT ask for their name or phone number again - you already have it
-- Use the customer's phone number (${chat.customerPhone}) to look up their orders directly
+- DO NOT ask for their name or email again - you already have it
+- Use the customer's email address (${chat.customerEmail}) to look up their orders directly
 
 Your role is to help customers with:
 1. FAQs and general store questions
@@ -96,9 +96,9 @@ Your role is to help customers with:
 4. Customer service inquiries
 
 Be friendly, helpful, and proactive. When customers ask about orders:
-- Use the lookupOrderByPhone tool to retrieve their orders (you already have their phone)
+- Use the lookupOrderByEmail tool to retrieve their orders (you already have their email)
 - If they mention a specific order number, use the lookupOrderByNumber tool
-- NEVER ask for email - we don't use email for order lookups
+- NEVER ask for phone number - we don't use phone numbers for order lookups
 - Only ask for their order number if they want to check a specific order
 - Use the available tools to fetch accurate real-time data from Shopify
 - Provide clear, detailed responses with tracking numbers, delivery estimates, product details, etc.
@@ -168,7 +168,7 @@ IMPORTANT: When sharing support contact information (emails, phone numbers), alw
         });
 
         tools.lookupOrderByNumber = createLookupOrderByNumberTool(shopifyClient, id);
-        tools.lookupOrderByPhone = createLookupOrderByPhoneTool(shopifyClient, id);
+        tools.lookupOrderByEmail = createLookupOrderByEmailTool(shopifyClient, id);
         tools.getProduct = createGetProductTool(shopifyClient);
         tools.listProducts = createListProductsTool(shopifyClient);
     }

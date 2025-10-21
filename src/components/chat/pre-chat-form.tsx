@@ -8,15 +8,15 @@ import type { WidgetCustomization } from "@/lib/widget/defaults";
 
 interface PreChatFormProps {
     config: Required<Omit<WidgetCustomization, "logoKey">>;
-    onSubmit: (data: { name: string; phone: string }) => void;
+    onSubmit: (data: { name: string; email: string }) => void;
 }
 
 export function PreChatForm({ config, onSubmit }: PreChatFormProps) {
     const [name, setName] = useState("");
-    const [phone, setPhone] = useState("");
+    const [email, setEmail] = useState("");
     const [errors, setErrors] = useState<{
         name?: string;
-        phone?: string;
+        email?: string;
     }>({});
 
     const validateForm = () => {
@@ -26,10 +26,10 @@ export function PreChatForm({ config, onSubmit }: PreChatFormProps) {
             newErrors.name = "Name is required";
         }
 
-        if (!phone.trim()) {
-            newErrors.phone = "Phone number is required";
-        } else if (!/^[\d\s\+\-\(\)]+$/.test(phone)) {
-            newErrors.phone = "Please enter a valid phone number";
+        if (!email.trim()) {
+            newErrors.email = "Email is required";
+        } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+            newErrors.email = "Please enter a valid email address";
         }
 
         setErrors(newErrors);
@@ -40,7 +40,7 @@ export function PreChatForm({ config, onSubmit }: PreChatFormProps) {
         e.preventDefault();
 
         if (validateForm()) {
-            onSubmit({ name, phone });
+            onSubmit({ name, email });
         }
     };
 
@@ -90,26 +90,26 @@ export function PreChatForm({ config, onSubmit }: PreChatFormProps) {
 
                     <div className="space-y-2">
                         <Label
-                            htmlFor="phone"
+                            htmlFor="email"
                             style={{ color: config.textPrimaryColor }}
                         >
-                            Phone Number
+                            Email Address
                         </Label>
                         <Input
-                            id="phone"
-                            type="tel"
-                            value={phone}
-                            onChange={(e) => setPhone(e.target.value)}
-                            placeholder="+44 7XXX XXXXXX"
+                            id="email"
+                            type="email"
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                            placeholder="your@email.com"
                             style={{
                                 backgroundColor: config.secondaryColor,
                                 color: config.textPrimaryColor,
-                                borderColor: errors.phone ? "#ef4444" : config.borderColor,
+                                borderColor: errors.email ? "#ef4444" : config.borderColor,
                             }}
                             className="w-full"
                         />
-                        {errors.phone && (
-                            <p className="text-xs text-red-500">{errors.phone}</p>
+                        {errors.email && (
+                            <p className="text-xs text-red-500">{errors.email}</p>
                         )}
                     </div>
 

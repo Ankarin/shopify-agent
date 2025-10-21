@@ -5,8 +5,8 @@ This document explains how the conversion tracking system works and how to set i
 ## Overview
 
 The system tracks purchases made after chatbot interactions by:
-1. Collecting customer email or phone during chat (naturally, when they ask about orders)
-2. Periodically checking Shopify for orders from those contacts
+1. Collecting customer email during pre-chat form
+2. Periodically checking Shopify for orders from those email addresses
 3. Attributing orders to chats if they occurred within 24 hours of the conversation
 
 ## Database Schema
@@ -19,8 +19,8 @@ The system tracks purchases made after chatbot interactions by:
 - `businessHoursEnd`: End hour in 24h format (default: 17)
 
 **chats**
-- `customerEmail`: Stores email when customer provides it
-- `customerPhone`: Stores phone when customer provides it
+- `customerEmail`: Stores email from pre-chat form
+- `customerPhone`: Legacy field (no longer used, replaced by email)
 - `messageCount`: Total messages in conversation
 - `escalated`: 1 if conversation was escalated to human
 - `resolved`: 1 if conversation was resolved by bot
@@ -38,13 +38,12 @@ The system tracks purchases made after chatbot interactions by:
 
 ## How It Works
 
-### 1. Email/Phone Collection
+### 1. Email Collection
 
-The chatbot naturally asks for email or phone when users inquire about orders:
-- "Where is my order?" → "What's your email?"
-- Uses `lookupOrderByEmail` or `lookupOrderByPhone` tools
-
-Currently, you need to manually update the chat record with the email/phone. Future enhancement: auto-extract from tool calls.
+The chatbot collects email addresses through the pre-chat form before the conversation starts:
+- Users provide their name and email before starting chat
+- Email is stored in the chat record automatically
+- Uses `lookupOrderByEmail` tool to retrieve customer orders
 
 ### 2. Conversion Detection
 
@@ -56,8 +55,8 @@ curl -H "Authorization: Bearer YOUR_CRON_SECRET" \
 ```
 
 The job:
-- Finds chats from last 24 hours with email/phone
-- Queries Shopify for orders from those contacts
+- Finds chats from last 24 hours with email addresses
+- Queries Shopify for orders from those email addresses
 - Attributes orders that occurred after the chat (within 24h window)
 - Creates `chat_conversions` records
 
@@ -130,8 +129,7 @@ curl -H "Authorization: Bearer dev-secret" \
 ## Tools Available
 
 The chatbot now has these Shopify tools:
-- `lookupOrderByEmail` - Find orders by email
-- `lookupOrderByPhone` - Find orders by phone
+- `lookupOrderByEmail` - Find orders by email address
 - `lookupOrderByNumber` - Find order by number (#1001)
 - `getProduct` - Get product details
 - `listProducts` - List available products
@@ -187,11 +185,10 @@ The system automatically tracks conversations that occur outside business hours:
 
 ## Future Enhancements
 
-1. Auto-extract email/phone from AI tool calls
-2. Real-time Shopify webhooks for instant conversion tracking
-3. UTM parameters in product links for precise attribution
-4. Custom attribution windows per client
-5. A/B testing support
-6. Customer journey visualization
-7. Holiday calendar support for after-hours tracking
+1. Real-time Shopify webhooks for instant conversion tracking
+2. UTM parameters in product links for precise attribution
+3. Custom attribution windows per client
+4. A/B testing support
+5. Customer journey visualization
+6. Holiday calendar support for after-hours tracking
 

@@ -38,7 +38,7 @@ interface ChatSectionProps {
 
 interface CustomerInfo {
   name: string;
-  phone: string;
+  email: string;
 }
 
 export function ChatSection({
@@ -206,7 +206,7 @@ export function ChatSection({
           },
           body: JSON.stringify({
             customerName: customerInfo?.name,
-            customerPhone: customerInfo?.phone,
+            customerEmail: customerInfo?.email,
           }),
         });
 

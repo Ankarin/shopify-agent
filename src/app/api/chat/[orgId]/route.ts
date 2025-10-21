@@ -22,14 +22,14 @@ export async function POST(
         const { orgId } = await params;
         const body = await request.json();
 
-        const { customerName, customerPhone } = body;
+        const { customerName, customerEmail } = body;
 
         const newChat = await db
             .insert(chats)
             .values({
                 organizationId: orgId,
                 customerName: customerName || null,
-                customerPhone: customerPhone || null,
+                customerEmail: customerEmail || null,
             })
             .returning();
 

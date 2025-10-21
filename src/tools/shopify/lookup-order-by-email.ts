@@ -5,13 +5,13 @@ import { db } from "@/db";
 import { chats } from "@/db/schema";
 import { eq } from "drizzle-orm";
 
-export const createLookupOrderByPhoneTool = (shopifyClient: ShopifyClient, chatId: string) => tool({
-    description: 'Look up orders for the current customer using their phone number that was provided during chat initialization.',
+export const createLookupOrderByEmailTool = (shopifyClient: ShopifyClient, chatId: string) => tool({
+    description: 'Look up orders for the current customer using their email address that was provided during chat initialization.',
     inputSchema: z.object({
         limit: z.number().min(1).max(50).default(10).optional().describe('Number of orders to return (default 10, max 50). Use lower numbers for recent orders.'),
     }),
     execute: async ({ limit = 10 }) => {
-        console.log('🔍 [Tool: lookupOrderByPhone] Called with chatId:', chatId, 'limit:', limit);
+        console.log('🔍 [Tool: lookupOrderByEmail] Called with chatId:', chatId, 'limit:', limit);
         const startTime = Date.now();
 
         try {
@@ -19,29 +19,29 @@ export const createLookupOrderByPhoneTool = (shopifyClient: ShopifyClient, chatI
                 where: eq(chats.id, chatId),
             });
 
-            if (!chat || !chat.customerPhone) {
-                throw new Error('Customer phone not found.');
+            if (!chat || !chat.customerEmail) {
+                throw new Error('Customer email not found.');
             }
 
-            const phone = chat.customerPhone;
-            console.log(1, phone);
-            const orders = await shopifyClient.getOrderByPhone(phone, limit);
+            const email = chat.customerEmail;
+            console.log(1, email);
+            const orders = await shopifyClient.getOrderByEmail(email, limit);
             console.log(2, orders);
             const duration = Date.now() - startTime;
 
-            console.log(`📦 [Tool: lookupOrderByPhone] Found ${orders.length} orders in ${duration}ms`);
+            console.log(`📦 [Tool: lookupOrderByEmail] Found ${orders.length} orders in ${duration}ms`);
 
             if (orders.length === 0) {
-                console.log('⚠️ [Tool: lookupOrderByPhone] No orders found');
-                throw new Error('No orders found for this phone number.');
+                console.log('⚠️ [Tool: lookupOrderByEmail] No orders found');
+                throw new Error('No orders found for this email address.');
             }
 
             const formattedOrders = orders.map(order => shopifyClient.formatOrderInfo(order)).join('\n\n---\n\n');
-            console.log(`✅ [Tool: lookupOrderByPhone] Success - Returning ${orders.length} formatted orders`);
+            console.log(`✅ [Tool: lookupOrderByEmail] Success - Returning ${orders.length} formatted orders`);
             return formattedOrders;
         } catch (error: any) {
             const duration = Date.now() - startTime;
-            console.error(`❌ [Tool: lookupOrderByPhone] Error after ${duration}ms:`, {
+            console.error(`❌ [Tool: lookupOrderByEmail] Error after ${duration}ms:`, {
                 chatId,
                 limit,
                 error: error.message,
@@ -51,4 +51,5 @@ export const createLookupOrderByPhoneTool = (shopifyClient: ShopifyClient, chatI
         }
     },
 });
+
 
