@@ -21,6 +21,8 @@ import { toast } from "sonner"
 interface Chat {
     id: string
     organizationId: string
+    customerName: string | null
+    customerEmail: string | null
     createdAt: Date
     updatedAt: Date
 }
@@ -150,9 +152,17 @@ export function AppSidebar() {
                                             <SidebarMenuButton
                                                 onClick={() => router.push(`/${currentOrgId}/dashboard/chats/${chat.id}`)}
                                                 isActive={pathname.includes(`/dashboard/chats/${chat.id}`)}
+                                                className="h-auto py-2"
                                             >
-                                                <MessageSquare className="h-4 w-4" />
-                                                <span>Chat {new Date(chat.createdAt).toLocaleString()}</span>
+                                                <MessageSquare className="h-4 w-4 flex-shrink-0" />
+                                                <div className="flex flex-col items-start gap-0.5 flex-1 min-w-0">
+                                                    <span className="truncate w-full">
+                                                        {new Date(chat.createdAt).toLocaleString()}
+                                                    </span>
+                                                    <span className="text-xs text-muted-foreground truncate w-full">
+                                                        {chat.customerEmail || "No email"}
+                                                    </span>
+                                                </div>
                                             </SidebarMenuButton>
                                         </SidebarMenuItem>
                                     ))}
