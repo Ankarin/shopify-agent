@@ -155,6 +155,14 @@ export function ChatSection({
           if (data.messages && data.messages.length > 0) {
             setMessages(data.messages);
           }
+          if (data.customerName && data.customerEmail) {
+            const existingCustomerInfo = {
+              name: data.customerName,
+              email: data.customerEmail,
+            };
+            setCustomerInfo(existingCustomerInfo);
+            setShowPreChatForm(false);
+          }
         } else {
           console.error("❌ [ChatSection] Failed to fetch chat:", response.status, response.statusText, "URL:", url);
         }

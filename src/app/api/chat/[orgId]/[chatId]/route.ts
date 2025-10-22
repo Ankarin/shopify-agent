@@ -1,6 +1,9 @@
 import { Redis } from '@upstash/redis';
 import { UIMessage } from 'ai';
 import { NextRequest, NextResponse } from 'next/server';
+import { db } from '@/db';
+import { chats } from '@/db/schema';
+import { eq } from 'drizzle-orm';
 
 const redis = new Redis({
     token: process.env.UPSTASH_REDIS_REST_TOKEN,
@@ -27,11 +30,18 @@ export async function GET(
 
         const history = await redis.get<UIMessage[]>(`chat:history:${chatId}`);
 
+        const chat = await db.select({
+            customerName: chats.customerName,
+            customerEmail: chats.customerEmail,
+        }).from(chats).where(eq(chats.id, chatId)).limit(1);
+
         return NextResponse.json({
             orgId,
             chatId,
             status: 'active',
             messages: history || [],
+            customerName: chat[0]?.customerName || null,
+            customerEmail: chat[0]?.customerEmail || null,
         }, {
             headers: {
                 'Access-Control-Allow-Origin': '*',
