@@ -25,7 +25,7 @@ export const chats = pgTable("chats", {
   customerEmail: text("customer_email"),
   customerPhone: text("customer_phone"),
   messageCount: integer("message_count").default(0).notNull(),
-  escalated: integer("escalated").default(0).notNull(),
+  unresolved: integer("unresolved").default(0).notNull(),
   resolved: integer("resolved").default(0).notNull(),
   afterHours: integer("after_hours").default(0).notNull(),
   questionTopic: text("question_topic"),

@@ -16,7 +16,7 @@ export async function GET(req: NextRequest) {
             .from(chats)
             .where(
                 and(
-                    eq(chats.escalated, 0),
+                    eq(chats.unresolved, 0),
                     eq(chats.resolved, 0),
                     lte(chats.updatedAt, tenMinutesAgo)
                 )

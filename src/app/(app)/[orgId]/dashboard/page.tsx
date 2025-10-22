@@ -19,7 +19,7 @@ interface Analytics {
         totalConversions: number;
         conversationResolvedPercentage: number;
         revenue: Record<string, number>;
-        escalated: number;
+        unresolved: number;
         resolved: number;
         afterHours: number;
         inProgress: number;
@@ -153,9 +153,9 @@ export default function DashboardPage() {
                         <div className="flex items-center justify-between">
                             <div className="flex items-center gap-2">
                                 <AlertCircle className="h-5 w-5 text-red-500" />
-                                <span className="font-medium">Escalated</span>
+                                <span className="font-medium">Unresolved</span>
                             </div>
-                            <span className="text-2xl font-bold">{analytics.metrics.escalated}</span>
+                            <span className="text-2xl font-bold">{analytics.metrics.unresolved}</span>
                         </div>
                         <div className="flex items-center justify-between">
                             <div className="flex items-center gap-2">

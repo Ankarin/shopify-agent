@@ -15,7 +15,7 @@ export async function GET(req: NextRequest) {
             totalChatsResult,
             totalConversionsResult,
             revenueResult,
-            escalatedChatsResult,
+            unresolvedChatsResult,
             resolvedChatsResult,
             topQuestionsResult,
             orgBreakdownResult,
@@ -47,7 +47,7 @@ export async function GET(req: NextRequest) {
                 .from(chats)
                 .where(
                     and(
-                        eq(chats.escalated, 1),
+                        eq(chats.unresolved, 1),
                         gte(chats.createdAt, startDate)
                     )
                 ),
@@ -87,7 +87,7 @@ export async function GET(req: NextRequest) {
                 totalMessages: sql<number>`coalesce(sum(${chats.messageCount}), 0)::int`,
                 totalConversions: sql<number>`count(distinct ${chatConversions.id})::int`,
                 totalRevenue: sql<number>`coalesce(sum(cast(${chatConversions.orderAmount} as numeric)), 0)`,
-                escalated: sql<number>`sum(case when ${chats.escalated} = 1 then 1 else 0 end)::int`,
+                unresolved: sql<number>`sum(case when ${chats.unresolved} = 1 then 1 else 0 end)::int`,
                 resolved: sql<number>`sum(case when ${chats.resolved} = 1 then 1 else 0 end)::int`,
             })
                 .from(chats)
@@ -101,7 +101,7 @@ export async function GET(req: NextRequest) {
         const totalChats = totalChatsResult[0]?.count || 0;
         const totalMessages = totalChatsResult[0]?.messageCount || 0;
         const totalConversions = totalConversionsResult[0]?.count || 0;
-        const escalatedCount = escalatedChatsResult[0]?.count || 0;
+        const unresolvedCount = unresolvedChatsResult[0]?.count || 0;
         const resolvedCount = resolvedChatsResult[0]?.count || 0;
 
         const revenueByurrency = revenueResult.reduce((acc, r) => {
@@ -126,7 +126,7 @@ export async function GET(req: NextRequest) {
             totalMessages: org.totalMessages,
             totalConversions: org.totalConversions,
             totalRevenue: parseFloat(org.totalRevenue as any) || 0,
-            escalated: org.escalated,
+            unresolved: org.unresolved,
             resolved: org.resolved,
             conversationResolvedPercentage: org.totalChats > 0 ? Math.round((org.resolved / org.totalChats) * 100 * 100) / 100 : 0,
         }));
@@ -143,9 +143,9 @@ export async function GET(req: NextRequest) {
                 totalConversions,
                 conversationResolvedPercentage: Math.round(conversationResolvedPercentage * 100) / 100,
                 revenue: revenueByurrency,
-                escalated: escalatedCount,
+                unresolved: unresolvedCount,
                 resolved: resolvedCount,
-                inProgress: totalChats - escalatedCount - resolvedCount,
+                inProgress: totalChats - unresolvedCount - resolvedCount,
             },
             topQuestions,
             clientBreakdown,

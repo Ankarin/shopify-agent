@@ -11,15 +11,15 @@ export async function PATCH(
         const { chatId } = await params;
         const body = await req.json();
 
-        const { escalated, resolved } = body;
+        const { unresolved, resolved } = body;
 
         const updateData: any = {};
-        if (typeof escalated === 'number') updateData.escalated = escalated;
+        if (typeof unresolved === 'number') updateData.unresolved = unresolved;
         if (typeof resolved === 'number') updateData.resolved = resolved;
 
         if (Object.keys(updateData).length === 0) {
             return NextResponse.json(
-                { error: 'At least one of escalated or resolved is required' },
+                { error: 'At least one of unresolved or resolved is required' },
                 { status: 400 }
             );
         }

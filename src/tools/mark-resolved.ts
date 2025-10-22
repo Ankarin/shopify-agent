@@ -15,7 +15,7 @@ export const createMarkAsResolvedTool = (chatId: string) => tool({
         try {
             await db
                 .update(chats)
-                .set({ resolved: 1 })
+                .set({ resolved: 1, unresolved: 0 })
                 .where(eq(chats.id, chatId));
 
             console.log('✅ [Tool: markAsResolved] Chat marked as resolved');

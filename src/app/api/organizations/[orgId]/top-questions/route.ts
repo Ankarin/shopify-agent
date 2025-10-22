@@ -21,7 +21,7 @@ export async function GET(
                 question: chats.questionText,
                 count: sql<number>`count(*)::int`,
                 resolvedCount: sql<number>`sum(case when ${chats.resolved} = 1 then 1 else 0 end)::int`,
-                escalatedCount: sql<number>`sum(case when ${chats.escalated} = 1 then 1 else 0 end)::int`,
+                unresolvedCount: sql<number>`sum(case when ${chats.unresolved} = 1 then 1 else 0 end)::int`,
             })
             .from(chats)
             .where(
@@ -41,7 +41,7 @@ export async function GET(
                 topic: chats.questionTopic,
                 count: sql<number>`count(*)::int`,
                 resolvedCount: sql<number>`sum(case when ${chats.resolved} = 1 then 1 else 0 end)::int`,
-                escalatedCount: sql<number>`sum(case when ${chats.escalated} = 1 then 1 else 0 end)::int`,
+                unresolvedCount: sql<number>`sum(case when ${chats.unresolved} = 1 then 1 else 0 end)::int`,
             })
             .from(chats)
             .where(

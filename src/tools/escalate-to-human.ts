@@ -5,7 +5,7 @@ import { chats } from "@/db/schema";
 import { eq } from "drizzle-orm";
 
 export const createEscalateToHumanTool = (chatId: string) => tool({
-    description: 'Escalate this conversation to a human agent when you cannot help the customer or they explicitly request human support. Use this when the issue is too complex, requires manual intervention, or the customer is unsatisfied.',
+    description: 'Escalate this conversation to a human agent when the customer needs human support. Use this when the issue requires manual intervention (refunds, cancellations, account changes), the customer explicitly requests to speak with a human, or the problem is too complex. This marks the conversation as RESOLVED because you successfully helped by providing the next steps.',
     inputSchema: z.object({
         reason: z.string().describe('Brief reason for escalation (e.g., "refund request", "complex issue", "customer requested")'),
     }),
@@ -15,10 +15,10 @@ export const createEscalateToHumanTool = (chatId: string) => tool({
         try {
             await db
                 .update(chats)
-                .set({ escalated: 1 })
+                .set({ resolved: 1, unresolved: 0 })
                 .where(eq(chats.id, chatId));
 
-            console.log('✅ [Tool: escalateToHuman] Chat marked as escalated');
+            console.log('✅ [Tool: escalateToHuman] Chat marked as resolved (escalated to human)');
 
             return `I've escalated this conversation. A human support agent will reach out to you soon regarding: ${reason}`;
         } catch (error: any) {

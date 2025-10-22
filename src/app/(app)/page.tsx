@@ -13,7 +13,7 @@ interface ClientBreakdown {
     totalMessages: number;
     totalConversions: number;
     totalRevenue: number;
-    escalated: number;
+    unresolved: number;
     resolved: number;
     conversationResolvedPercentage: number;
 }
@@ -30,7 +30,7 @@ interface OverallAnalytics {
         totalConversions: number;
         conversationResolvedPercentage: number;
         revenue: Record<string, number>;
-        escalated: number;
+        unresolved: number;
         resolved: number;
         inProgress: number;
     };
@@ -172,9 +172,9 @@ export default function OverallDashboardPage() {
                         <div className="flex items-center justify-between">
                             <div className="flex items-center gap-2">
                                 <AlertCircle className="h-5 w-5 text-red-500" />
-                                <span className="font-medium">Escalated</span>
+                                <span className="font-medium">Unresolved</span>
                             </div>
-                            <span className="text-2xl font-bold">{analytics.overall.escalated}</span>
+                            <span className="text-2xl font-bold">{analytics.overall.unresolved}</span>
                         </div>
                     </CardContent>
                 </Card>
@@ -240,7 +240,7 @@ export default function OverallDashboardPage() {
                                             <div>
                                                 <p className="text-muted-foreground">Status</p>
                                                 <p className="font-semibold">
-                                                    {client.resolved}R / {client.escalated}E
+                                                    {client.resolved}R / {client.unresolved}U
                                                 </p>
                                             </div>
                                         </div>

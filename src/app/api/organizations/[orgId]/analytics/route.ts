@@ -19,7 +19,7 @@ export async function GET(
             totalChatsResult,
             totalConversionsResult,
             revenueResult,
-            escalatedChatsResult,
+            unresolvedChatsResult,
             resolvedChatsResult,
             afterHoursChatsResult,
             topQuestionsResult,
@@ -67,7 +67,7 @@ export async function GET(
                 .where(
                     and(
                         eq(chats.organizationId, orgId),
-                        eq(chats.escalated, 1),
+                        eq(chats.unresolved, 1),
                         gte(chats.createdAt, startDate)
                     )
                 ),
@@ -118,7 +118,7 @@ export async function GET(
         const totalChats = totalChatsResult[0]?.count || 0;
         const totalMessages = totalChatsResult[0]?.messageCount || 0;
         const totalConversions = totalConversionsResult[0]?.count || 0;
-        const escalatedCount = escalatedChatsResult[0]?.count || 0;
+        const unresolvedCount = unresolvedChatsResult[0]?.count || 0;
         const resolvedCount = resolvedChatsResult[0]?.count || 0;
         const afterHoursCount = afterHoursChatsResult[0]?.count || 0;
 
@@ -149,10 +149,10 @@ export async function GET(
                 totalConversions,
                 conversationResolvedPercentage: Math.round(conversationResolvedPercentage * 100) / 100,
                 revenue: revenueByurrency,
-                escalated: escalatedCount,
+                unresolved: unresolvedCount,
                 resolved: resolvedCount,
                 afterHours: afterHoursCount,
-                inProgress: totalChats - escalatedCount - resolvedCount,
+                inProgress: totalChats - unresolvedCount - resolvedCount,
             },
             topQuestions,
         });

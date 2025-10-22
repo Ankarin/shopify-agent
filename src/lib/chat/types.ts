@@ -12,7 +12,7 @@ export interface Organization {
 export interface Chat {
     id: string;
     orgId: string;
-    status: 'active' | 'resolved' | 'escalated';
+    status: 'active' | 'resolved' | 'unresolved';
     visitorId?: string;
     email?: string;
     createdAt: Date;

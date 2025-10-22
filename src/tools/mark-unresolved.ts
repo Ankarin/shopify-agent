@@ -15,7 +15,7 @@ export const createMarkAsUnresolvedTool = (chatId: string) => tool({
         try {
             await db
                 .update(chats)
-                .set({ resolved: 0 })
+                .set({ unresolved: 1, resolved: 0 })
                 .where(eq(chats.id, chatId));
 
             console.log('⚠️ [Tool: markAsUnresolved] Chat marked as unresolved');
