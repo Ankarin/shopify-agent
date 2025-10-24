@@ -23,6 +23,7 @@ import { Loader } from "@/components/ai-elements/loader";
 import type { WidgetCustomization } from "@/lib/widget/defaults";
 import { CHAT_NOT_CREATED } from "@/lib/chat/constants";
 import { PreChatForm } from "./pre-chat-form";
+import { getFromStorage, setToStorage, removeFromStorage } from "@/lib/utils/storage";
 
 interface MessagePart {
   type: string;
@@ -102,15 +103,10 @@ export function ChatSection({
       return;
     }
 
-    const storedInfo = localStorage.getItem(`widget-customer-info-${orgId}-${chatId}`);
+    const storedInfo = getFromStorage<CustomerInfo>(`widget-customer-info-${orgId}-${chatId}`);
     if (storedInfo) {
-      try {
-        const parsedInfo = JSON.parse(storedInfo);
-        setCustomerInfo(parsedInfo);
-        setShowPreChatForm(false);
-      } catch (e) {
-        console.error("Failed to parse stored customer info:", e);
-      }
+      setCustomerInfo(storedInfo);
+      setShowPreChatForm(false);
     }
   }, [orgId, chatId]);
 
@@ -165,9 +161,19 @@ export function ChatSection({
           }
         } else {
           console.error("❌ [ChatSection] Failed to fetch chat:", response.status, response.statusText, "URL:", url);
+          if (response.status === 404 || response.status === 500) {
+            console.log("🧹 [ChatSection] Chat not found in DB, clearing localStorage");
+            removeFromStorage(`widget-chat-${orgId}`);
+            removeFromStorage(`widget-customer-info-${orgId}-${chatId}`);
+            onChatIdChange(CHAT_NOT_CREATED);
+          }
         }
       } catch (error) {
         console.error("❌ [ChatSection] Failed to initialize chat:", error);
+        console.log("🧹 [ChatSection] Error fetching chat, clearing localStorage");
+        removeFromStorage(`widget-chat-${orgId}`);
+        removeFromStorage(`widget-customer-info-${orgId}-${chatId}`);
+        onChatIdChange(CHAT_NOT_CREATED);
       } finally {
         setIsInitialized(true);
         console.log("✅ [ChatSection] Chat initialized");
@@ -175,7 +181,7 @@ export function ChatSection({
     };
 
     initializeChat();
-  }, [orgId, chatId, setMessages]);
+  }, [orgId, chatId, setMessages, onChatIdChange]);
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: scrollToBottom is stable
   useEffect(() => {
@@ -192,7 +198,7 @@ export function ChatSection({
   const handlePreChatFormSubmit = (data: CustomerInfo) => {
     setCustomerInfo(data);
     if (chatId !== CHAT_NOT_CREATED) {
-      localStorage.setItem(`widget-customer-info-${orgId}-${chatId}`, JSON.stringify(data));
+      setToStorage(`widget-customer-info-${orgId}-${chatId}`, data);
     }
     setShowPreChatForm(false);
   };
@@ -226,12 +232,12 @@ export function ChatSection({
         const newChatId = newChat.id;
 
         if (customerInfo) {
-          localStorage.setItem(`widget-customer-info-${orgId}-${newChatId}`, JSON.stringify(customerInfo));
+          setToStorage(`widget-customer-info-${orgId}-${newChatId}`, customerInfo);
         }
 
         justCreatedChatRef.current = true;
         onChatIdChange(newChatId);
-        localStorage.setItem(`widget-chat-${orgId}`, newChatId);
+        setToStorage(`widget-chat-${orgId}`, newChatId);
 
         sessionStorage.setItem(
           `pending-message-${orgId}`,

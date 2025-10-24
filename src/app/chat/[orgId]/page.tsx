@@ -4,6 +4,7 @@ import dynamic from 'next/dynamic';
 import { use, useEffect, useState } from "react";
 import "./[chatId]/widget-page.css";
 import { CHAT_NOT_CREATED } from "@/lib/chat/constants";
+import { getFromStorage } from "@/lib/utils/storage";
 
 const WebsiteWidget = dynamic(
   () => import('@/components/chat/website-widget').then(mod => mod.WebsiteWidget),
@@ -21,8 +22,7 @@ const Page = ({ params }: PageProps) => {
 
   useEffect(() => {
     if (typeof window !== "undefined") {
-      const storageKey = `widget-chat-${orgId}`;
-      const existingChatId = localStorage.getItem(storageKey);
+      const existingChatId = getFromStorage<string>(`widget-chat-${orgId}`);
 
       if (existingChatId) {
         setChatId(existingChatId);
