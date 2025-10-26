@@ -211,6 +211,18 @@ export function ChatSection({
     setShowPreChatForm(false);
   };
 
+  useEffect(() => {
+    if (!showPreChatForm && messages.length === 0 && config.initialMessage) {
+      setMessages([
+        {
+          id: `initial-${Date.now()}`,
+          role: "assistant",
+          parts: [{ type: "text", text: config.initialMessage }],
+        },
+      ]);
+    }
+  }, [showPreChatForm, messages.length, config.initialMessage, setMessages]);
+
   const handleSubmit = async (message: PromptInputMessage) => {
     const hasText = Boolean(message.text);
     const hasAttachments = Boolean(message.files?.length);
