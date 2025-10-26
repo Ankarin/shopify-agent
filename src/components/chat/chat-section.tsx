@@ -150,6 +150,14 @@ export function ChatSection({
           console.log("✅ [ChatSection] Chat history loaded:", data);
           if (data.messages && data.messages.length > 0) {
             setMessages(data.messages);
+          } else if (config.initialMessage) {
+            setMessages([
+              {
+                id: `initial-${Date.now()}`,
+                role: "assistant",
+                parts: [{ type: "text", text: config.initialMessage }],
+              },
+            ]);
           }
           if (data.customerName && data.customerEmail) {
             const existingCustomerInfo = {
@@ -243,6 +251,7 @@ export function ChatSection({
           `pending-message-${orgId}`,
           JSON.stringify(message),
         );
+        setInput("");
         return;
       } catch (error) {
         console.error("Error creating chat or sending message:", error);
@@ -268,16 +277,28 @@ export function ChatSection({
           const pendingMessage = JSON.parse(pendingMessageStr);
           sessionStorage.removeItem(pendingMessageKey);
 
-          sendMessage({
-            text: pendingMessage.text || "Sent with attachments",
-            files: pendingMessage.files,
-          });
+          if (messages.length === 0 && config.initialMessage) {
+            setMessages([
+              {
+                id: `initial-${Date.now()}`,
+                role: "assistant",
+                parts: [{ type: "text", text: config.initialMessage }],
+              },
+            ]);
+          }
+
+          setTimeout(() => {
+            sendMessage({
+              text: pendingMessage.text || "Sent with attachments",
+              files: pendingMessage.files,
+            });
+          }, 100);
         } catch (error) {
           console.error("Error processing pending message:", error);
         }
       }
     }
-  }, [chatId, orgId, isInitialized, sendMessage]);
+  }, [chatId, orgId, isInitialized, sendMessage, messages.length, config.initialMessage, setMessages]);
 
   const renderConversationContent = () => {
     const lastMessage = messages[messages.length - 1];
@@ -298,18 +319,6 @@ export function ChatSection({
 
     return (
       <>
-        {messages.length === 0 && config.initialMessage && (
-          <Message from="assistant">
-            <MessageContent
-              style={{
-                backgroundColor: config.secondaryColor,
-                color: config.textPrimaryColor,
-              }}
-            >
-              <Response>{config.initialMessage}</Response>
-            </MessageContent>
-          </Message>
-        )}
         {messages.map((message) => {
           console.log("🔍 [Widget] Rendering message:", {
             id: message.id,
