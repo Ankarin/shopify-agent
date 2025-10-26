@@ -148,6 +148,21 @@ export function ChatSection({
         if (response.ok) {
           const data = await response.json();
           console.log("✅ [ChatSection] Chat history loaded:", data);
+
+          if (data.updatedAt) {
+            const lastUpdateTime = new Date(data.updatedAt).getTime();
+            const currentTime = Date.now();
+            const thirtyMinutesInMs = 30 * 60 * 1000;
+
+            if (currentTime - lastUpdateTime > thirtyMinutesInMs) {
+              console.log("⏱️ [ChatSection] Chat inactive for >30 minutes, starting new chat");
+              removeFromStorage(`widget-chat-${orgId}`);
+              removeFromStorage(`widget-customer-info-${orgId}-${chatId}`);
+              onChatIdChange(CHAT_NOT_CREATED);
+              return;
+            }
+          }
+
           if (data.messages && data.messages.length > 0) {
             setMessages(data.messages);
           } else if (config.initialMessage) {

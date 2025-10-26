@@ -33,6 +33,7 @@ export async function GET(
         const chat = await db.select({
             customerName: chats.customerName,
             customerEmail: chats.customerEmail,
+            updatedAt: chats.updatedAt,
         }).from(chats).where(eq(chats.id, chatId)).limit(1);
 
         return NextResponse.json({
@@ -42,6 +43,7 @@ export async function GET(
             messages: history || [],
             customerName: chat[0]?.customerName || null,
             customerEmail: chat[0]?.customerEmail || null,
+            updatedAt: chat[0]?.updatedAt || null,
         }, {
             headers: {
                 'Access-Control-Allow-Origin': '*',

@@ -195,7 +195,10 @@ IMPORTANT: When sharing support contact information (emails, phone numbers), alw
             size: 16,
         }),
         onFinish: async ({ messages }) => {
-            await redis.set(`chat:history:${id}`, messages);
+            await Promise.all([
+                redis.set(`chat:history:${id}`, messages),
+                db.update(chats).set({ updatedAt: new Date() }).where(eq(chats.id, id))
+            ]);
         },
     });
 
