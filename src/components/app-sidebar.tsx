@@ -16,7 +16,6 @@ import { Button } from "@/components/ui/button"
 import { Plus, MessageSquare, LayoutDashboard, Palette, BarChart3 } from "lucide-react"
 import { useState, useEffect } from "react"
 import { useRouter, useParams, usePathname } from "next/navigation"
-import { toast } from "sonner"
 
 interface Chat {
     id: string
@@ -29,7 +28,6 @@ interface Chat {
 
 export function AppSidebar() {
     const [chats, setChats] = useState<Chat[]>([])
-    const [isCreatingChat, setIsCreatingChat] = useState(false)
     const router = useRouter()
     const params = useParams()
     const pathname = usePathname()
@@ -65,32 +63,10 @@ export function AppSidebar() {
         }
     }
 
-    const handleCreateNewChat = async () => {
-        if (!currentOrgId || isCreatingChat) return
-
-        setIsCreatingChat(true)
-        try {
-            const response = await fetch(`/api/organizations/${currentOrgId}/chats`, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-            })
-
-            if (!response.ok) {
-                throw new Error("Failed to create chat")
-            }
-
-            const newChat = await response.json()
-            await fetchChats(currentOrgId)
-            router.push(`/${currentOrgId}/dashboard/chats/${newChat.id}`)
-            toast.success("New chat created")
-        } catch (error) {
-            console.error("Error creating chat:", error)
-            toast.error("Failed to create new chat")
-        } finally {
-            setIsCreatingChat(false)
-        }
+    const handleCreateNewChat = () => {
+        if (!currentOrgId) return
+        console.log("🆕 [Sidebar] Creating new chat, navigating to:", `/${currentOrgId}/dashboard/chats/_`)
+        router.push(`/${currentOrgId}/dashboard/chats/_`)
     }
 
     return (
@@ -139,7 +115,6 @@ export function AppSidebar() {
                                         size="sm"
                                         variant="outline"
                                         onClick={handleCreateNewChat}
-                                        disabled={isCreatingChat}
                                         className="w-full"
                                     >
                                         <Plus className="h-4 w-4 mr-2" />

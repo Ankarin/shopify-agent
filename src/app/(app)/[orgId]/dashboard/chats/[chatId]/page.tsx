@@ -117,6 +117,7 @@ export default function ChatPage({
                     orgId={orgId}
                     config={config}
                     onChatIdChange={handleChatIdChange}
+                    isInternalView={true}
                 />
             </div>
         </div>

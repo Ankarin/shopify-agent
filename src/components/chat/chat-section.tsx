@@ -35,6 +35,7 @@ interface ChatSectionProps {
   orgId: string;
   config: Required<Omit<WidgetCustomization, "logoKey">>;
   onChatIdChange: (newChatId: string) => void;
+  isInternalView?: boolean;
 }
 
 interface CustomerInfo {
@@ -47,6 +48,7 @@ export function ChatSection({
   orgId,
   config,
   onChatIdChange,
+  isInternalView = false,
 }: ChatSectionProps) {
   const [input, setInput] = useState("");
   const [isInitialized, setIsInitialized] = useState(false);
@@ -54,6 +56,7 @@ export function ChatSection({
   const [showPreChatForm, setShowPreChatForm] = useState(true);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const justCreatedChatRef = useRef(false);
+  const pendingMessageProcessedRef = useRef(false);
 
   const transport = useMemo(
     () =>
@@ -91,26 +94,12 @@ export function ChatSection({
     messagesEndRef.current?.scrollIntoView({ behavior: "auto" });
   };
 
-  useEffect(() => {
-    if (chatId === CHAT_NOT_CREATED) {
-      if (!customerInfo) {
-        setShowPreChatForm(true);
-      }
-      return;
-    }
-
-    if (justCreatedChatRef.current) {
-      return;
-    }
-
-    const storedInfo = getFromStorage<CustomerInfo>(`widget-customer-info-${orgId}-${chatId}`);
-    if (storedInfo) {
-      setCustomerInfo(storedInfo);
-      setShowPreChatForm(false);
-    }
-  }, [orgId, chatId]);
 
   useEffect(() => {
+    setIsInitialized(false);
+    setMessages([]);
+    pendingMessageProcessedRef.current = false;
+
     const initializeChat = async () => {
       console.log("🔄 [ChatSection] Initializing chat:", {
         chatId,
@@ -165,7 +154,7 @@ export function ChatSection({
 
           if (data.messages && data.messages.length > 0) {
             setMessages(data.messages);
-          } else if (config.initialMessage) {
+          } else if (config.initialMessage && !isInternalView) {
             setMessages([
               {
                 id: `initial-${Date.now()}`,
@@ -218,6 +207,34 @@ export function ChatSection({
     scrollToBottom();
   }, [messages]);
 
+  useEffect(() => {
+    console.log("🔍 [ChatSection] Form logic running:", { chatId, isInternalView, CHAT_NOT_CREATED });
+    
+    if (chatId === CHAT_NOT_CREATED) {
+      console.log("✅ [ChatSection] New chat detected - showing form");
+      setShowPreChatForm(true);
+      setCustomerInfo(null);
+      return;
+    }
+
+    if (isInternalView) {
+      console.log("✅ [ChatSection] Internal view - hiding form");
+      setShowPreChatForm(false);
+      setCustomerInfo(null);
+      return;
+    }
+
+    const storedInfo = getFromStorage<CustomerInfo>(`widget-customer-info-${orgId}-${chatId}`);
+    if (storedInfo) {
+      console.log("✅ [ChatSection] Found stored customer info");
+      setCustomerInfo(storedInfo);
+      setShowPreChatForm(false);
+    } else {
+      console.log("✅ [ChatSection] No stored info - showing form");
+      setShowPreChatForm(true);
+    }
+  }, [orgId, chatId, isInternalView]);
+
   const handlePreChatFormSubmit = (data: CustomerInfo) => {
     setCustomerInfo(data);
     if (chatId !== CHAT_NOT_CREATED) {
@@ -227,7 +244,7 @@ export function ChatSection({
   };
 
   useEffect(() => {
-    if (!showPreChatForm && messages.length === 0 && config.initialMessage) {
+    if (!showPreChatForm && messages.length === 0 && config.initialMessage && chatId === CHAT_NOT_CREATED) {
       setMessages([
         {
           id: `initial-${Date.now()}`,
@@ -236,7 +253,7 @@ export function ChatSection({
         },
       ]);
     }
-  }, [showPreChatForm, messages.length, config.initialMessage, setMessages]);
+  }, [showPreChatForm, messages.length, config.initialMessage, setMessages, chatId]);
 
   const handleSubmit = async (message: PromptInputMessage) => {
     const hasText = Boolean(message.text);
@@ -270,15 +287,15 @@ export function ChatSection({
           setToStorage(`widget-customer-info-${orgId}-${newChatId}`, customerInfo);
         }
 
-        justCreatedChatRef.current = true;
-        onChatIdChange(newChatId);
-        setToStorage(`widget-chat-${orgId}`, newChatId);
-
         sessionStorage.setItem(
           `pending-message-${orgId}`,
           JSON.stringify(message),
         );
+
+        justCreatedChatRef.current = true;
+        setToStorage(`widget-chat-${orgId}`, newChatId);
         setInput("");
+        onChatIdChange(newChatId);
         return;
       } catch (error) {
         console.error("Error creating chat or sending message:", error);
@@ -295,7 +312,7 @@ export function ChatSection({
 
   // Check for pending messages after chat creation
   useEffect(() => {
-    if (chatId !== CHAT_NOT_CREATED && isInitialized) {
+    if (chatId !== CHAT_NOT_CREATED && isInitialized && !pendingMessageProcessedRef.current) {
       const pendingMessageKey = `pending-message-${orgId}`;
       const pendingMessageStr = sessionStorage.getItem(pendingMessageKey);
 
@@ -303,6 +320,7 @@ export function ChatSection({
         try {
           const pendingMessage = JSON.parse(pendingMessageStr);
           sessionStorage.removeItem(pendingMessageKey);
+          pendingMessageProcessedRef.current = true;
 
           if (messages.length === 0 && config.initialMessage) {
             setMessages([
@@ -404,7 +422,10 @@ export function ChatSection({
     );
   };
 
+  console.log("🎨 [ChatSection] Rendering:", { isInitialized, showPreChatForm, chatId });
+
   if (!isInitialized) {
+    console.log("⏳ [ChatSection] Showing loader - not initialized");
     return (
       <div className="flex items-center justify-center h-full">
         <Loader />
@@ -413,8 +434,11 @@ export function ChatSection({
   }
 
   if (showPreChatForm) {
+    console.log("📝 [ChatSection] Showing pre-chat form");
     return <PreChatForm config={config} onSubmit={handlePreChatFormSubmit} />;
   }
+
+  console.log("💬 [ChatSection] Showing chat interface");
 
   return (
     <>
