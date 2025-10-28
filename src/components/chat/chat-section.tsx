@@ -138,7 +138,7 @@ export function ChatSection({
           const data = await response.json();
           console.log("✅ [ChatSection] Chat history loaded:", data);
 
-          if (data.updatedAt) {
+          if (data.updatedAt && !isInternalView) {
             const lastUpdateTime = new Date(data.updatedAt).getTime();
             const currentTime = Date.now();
             const thirtyMinutesInMs = 30 * 60 * 1000;
@@ -163,7 +163,10 @@ export function ChatSection({
               },
             ]);
           }
-          if (data.customerName && data.customerEmail) {
+
+          if (isInternalView) {
+            setShowPreChatForm(false);
+          } else if (data.customerName && data.customerEmail) {
             const existingCustomerInfo = {
               name: data.customerName,
               email: data.customerEmail,
@@ -209,7 +212,7 @@ export function ChatSection({
 
   useEffect(() => {
     console.log("🔍 [ChatSection] Form logic running:", { chatId, isInternalView, CHAT_NOT_CREATED });
-    
+
     if (chatId === CHAT_NOT_CREATED) {
       console.log("✅ [ChatSection] New chat detected - showing form");
       setShowPreChatForm(true);
