@@ -2,10 +2,11 @@
 
 import { useEffect, useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Loader2, TrendingUp, MessageSquare, DollarSign, CheckCircle, AlertCircle, Clock, ExternalLink } from "lucide-react";
+import { Loader2, TrendingUp, MessageSquare, DollarSign, CheckCircle, AlertCircle, Clock, ExternalLink, Mail, Download } from "lucide-react";
 import { useParams } from "next/navigation";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface Analytics {
     period: {
@@ -31,12 +32,21 @@ interface Analytics {
     }>;
 }
 
+interface EmailData {
+    email: string;
+    name: string | null;
+    count: number;
+    lastUsed: string;
+}
+
 export default function DashboardPage() {
     const params = useParams();
     const orgId = params?.orgId as string;
     const [analytics, setAnalytics] = useState<Analytics | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [period, setPeriod] = useState(30);
+    const [emails, setEmails] = useState<EmailData[]>([]);
+    const [isLoadingEmails, setIsLoadingEmails] = useState(true);
 
     useEffect(() => {
         if (!orgId) return;
@@ -58,6 +68,40 @@ export default function DashboardPage() {
 
         fetchAnalytics();
     }, [orgId, period]);
+
+    useEffect(() => {
+        if (!orgId) return;
+
+        const fetchEmails = async () => {
+            setIsLoadingEmails(true);
+            try {
+                const response = await fetch(`/api/organizations/${orgId}/emails`);
+                if (response.ok) {
+                    const data = await response.json();
+                    setEmails(data.emails);
+                }
+            } catch (error) {
+                console.error("Error fetching emails:", error);
+            } finally {
+                setIsLoadingEmails(false);
+            }
+        };
+
+        fetchEmails();
+    }, [orgId]);
+
+    const handleExportEmails = () => {
+        const csv = 'Name,Email,Chats\n' + emails.map(e => `${e.name || 'N/A'},${e.email},${e.count}`).join('\n');
+        const blob = new Blob([csv], { type: 'text/csv' });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `chat-emails-${new Date().toISOString().split('T')[0]}.csv`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
+    };
 
     if (isLoading) {
         return (
@@ -193,6 +237,58 @@ export default function DashboardPage() {
                                     </div>
                                 ))}
                             </div>
+                        )}
+                    </CardContent>
+                </Card>
+            </div>
+
+            <div className="grid gap-4 mb-6">
+                <Card>
+                    <CardHeader>
+                        <div className="flex items-center justify-between">
+                            <div>
+                                <CardTitle>Chat User Emails</CardTitle>
+                                <CardDescription>Users who have engaged with your chat</CardDescription>
+                            </div>
+                            <Button
+                                onClick={handleExportEmails}
+                                disabled={emails.length === 0 || isLoadingEmails}
+                                size="sm"
+                                variant="outline"
+                            >
+                                <Download className="h-4 w-4 mr-2" />
+                                Export
+                            </Button>
+                        </div>
+                    </CardHeader>
+                    <CardContent>
+                        {isLoadingEmails ? (
+                            <div className="flex items-center justify-center py-8">
+                                <Loader2 className="h-6 w-6 animate-spin" />
+                            </div>
+                        ) : emails.length === 0 ? (
+                            <p className="text-sm text-muted-foreground py-4">No emails collected yet</p>
+                        ) : (
+                            <ScrollArea className="h-[200px]">
+                                <div className="space-y-2">
+                                    {emails.map((emailData, idx) => (
+                                        <div key={idx} className="flex items-center justify-between py-2 px-3 rounded-md hover:bg-muted/50">
+                                            <div className="flex items-center gap-2 flex-1 min-w-0">
+                                                <Mail className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                                                <div className="flex flex-col min-w-0">
+                                                    {emailData.name && (
+                                                        <span className="text-sm font-medium truncate">{emailData.name}</span>
+                                                    )}
+                                                    <span className="text-sm text-muted-foreground truncate">{emailData.email}</span>
+                                                </div>
+                                            </div>
+                                            <span className="text-xs text-muted-foreground flex-shrink-0 ml-2">
+                                                {emailData.count} chat{emailData.count > 1 ? 's' : ''}
+                                            </span>
+                                        </div>
+                                    ))}
+                                </div>
+                            </ScrollArea>
                         )}
                     </CardContent>
                 </Card>
