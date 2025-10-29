@@ -94,7 +94,6 @@ export function ChatSection({
     messagesEndRef.current?.scrollIntoView({ behavior: "auto" });
   };
 
-
   useEffect(() => {
     setIsInitialized(false);
     setMessages([]);
@@ -129,70 +128,105 @@ export function ChatSection({
         return;
       }
 
-      try {
-        const url = `/api/chat/${orgId}/${chatId}`;
-        console.log("📡 [ChatSection] Fetching chat history from:", url);
-        const response = await fetch(url);
+      const fetchChatHistory = async (retryCount = 0, maxRetries = 3) => {
+        try {
+          const url = `/api/chat/${orgId}/${chatId}`;
+          console.log(`📡 [ChatSection] Fetching chat history from: ${url} (attempt ${retryCount + 1}/${maxRetries + 1})`);
+          const response = await fetch(url);
 
-        if (response.ok) {
-          const data = await response.json();
-          console.log("✅ [ChatSection] Chat history loaded:", data);
+          if (response.ok) {
+            const data = await response.json();
+            const messagesCount = data.messages?.length || 0;
+            console.log("✅ [ChatSection] Chat history loaded:", {
+              messagesCount,
+              hasMessages: messagesCount > 0,
+              attempt: retryCount + 1,
+            });
 
-          if (data.updatedAt && !isInternalView) {
-            const lastUpdateTime = new Date(data.updatedAt).getTime();
-            const currentTime = Date.now();
-            const thirtyMinutesInMs = 30 * 60 * 1000;
+            if (data.updatedAt && !isInternalView) {
+              const lastUpdateTime = new Date(data.updatedAt).getTime();
+              const currentTime = Date.now();
+              const thirtyMinutesInMs = 30 * 60 * 1000;
 
-            if (currentTime - lastUpdateTime > thirtyMinutesInMs) {
-              console.log("⏱️ [ChatSection] Chat inactive for >30 minutes, starting new chat");
+              if (currentTime - lastUpdateTime > thirtyMinutesInMs) {
+                console.log("⏱️ [ChatSection] Chat inactive for >30 minutes, starting new chat");
+                removeFromStorage(`widget-chat-${orgId}`);
+                removeFromStorage(`widget-customer-info-${orgId}-${chatId}`);
+                onChatIdChange(CHAT_NOT_CREATED);
+                return;
+              }
+            }
+
+            // If no messages and we haven't reached max retries, retry with delay
+            if (messagesCount === 0 && retryCount < maxRetries) {
+              const delayMs = Math.pow(2, retryCount) * 500; // Exponential backoff: 500ms, 1000ms, 2000ms
+              console.log(`⏳ [ChatSection] No messages found, retrying in ${delayMs}ms...`);
+              await new Promise(resolve => setTimeout(resolve, delayMs));
+              return fetchChatHistory(retryCount + 1, maxRetries);
+            }
+
+            // Set messages or initial message
+            if (messagesCount > 0) {
+              console.log("📥 [ChatSection] Setting messages from history:", messagesCount);
+              setMessages(data.messages);
+            } else if (config.initialMessage && !isInternalView) {
+              console.log("💬 [ChatSection] No messages in history, setting initial message");
+              setMessages([
+                {
+                  id: `initial-${Date.now()}`,
+                  role: "assistant",
+                  parts: [{ type: "text", text: config.initialMessage }],
+                },
+              ]);
+            }
+
+            // Handle customer info and form visibility
+            if (isInternalView) {
+              setShowPreChatForm(false);
+            } else if (data.customerName && data.customerEmail) {
+              const existingCustomerInfo = {
+                name: data.customerName,
+                email: data.customerEmail,
+              };
+              setCustomerInfo(existingCustomerInfo);
+              setShowPreChatForm(false);
+            }
+
+            return true; // Success
+          } else {
+            console.error("❌ [ChatSection] Failed to fetch chat:", response.status, response.statusText, "URL:", url);
+            if (response.status === 404 || response.status === 500) {
+              console.log("🧹 [ChatSection] Chat not found in DB, clearing localStorage");
               removeFromStorage(`widget-chat-${orgId}`);
               removeFromStorage(`widget-customer-info-${orgId}-${chatId}`);
               onChatIdChange(CHAT_NOT_CREATED);
-              return;
             }
-          }
 
-          if (data.messages && data.messages.length > 0) {
-            setMessages(data.messages);
-          } else if (config.initialMessage && !isInternalView) {
-            setMessages([
-              {
-                id: `initial-${Date.now()}`,
-                role: "assistant",
-                parts: [{ type: "text", text: config.initialMessage }],
-              },
-            ]);
+            return false;
           }
+        } catch (error) {
+          console.error(`❌ [ChatSection] Error fetching chat (attempt ${retryCount + 1}):`, error);
+          
+          // Retry on error if we haven't reached max retries
+          if (retryCount < maxRetries) {
+            const delayMs = Math.pow(2, retryCount) * 500;
+            console.log(`⏳ [ChatSection] Error occurred, retrying in ${delayMs}ms...`);
+            await new Promise(resolve => setTimeout(resolve, delayMs));
+            return fetchChatHistory(retryCount + 1, maxRetries);
+          }
+          
+          console.log("🧹 [ChatSection] Max retries reached, clearing localStorage");
+          removeFromStorage(`widget-chat-${orgId}`);
+          removeFromStorage(`widget-customer-info-${orgId}-${chatId}`);
+          onChatIdChange(CHAT_NOT_CREATED);
 
-          if (isInternalView) {
-            setShowPreChatForm(false);
-          } else if (data.customerName && data.customerEmail) {
-            const existingCustomerInfo = {
-              name: data.customerName,
-              email: data.customerEmail,
-            };
-            setCustomerInfo(existingCustomerInfo);
-            setShowPreChatForm(false);
-          }
-        } else {
-          console.error("❌ [ChatSection] Failed to fetch chat:", response.status, response.statusText, "URL:", url);
-          if (response.status === 404 || response.status === 500) {
-            console.log("🧹 [ChatSection] Chat not found in DB, clearing localStorage");
-            removeFromStorage(`widget-chat-${orgId}`);
-            removeFromStorage(`widget-customer-info-${orgId}-${chatId}`);
-            onChatIdChange(CHAT_NOT_CREATED);
-          }
+          return false;
         }
-      } catch (error) {
-        console.error("❌ [ChatSection] Failed to initialize chat:", error);
-        console.log("🧹 [ChatSection] Error fetching chat, clearing localStorage");
-        removeFromStorage(`widget-chat-${orgId}`);
-        removeFromStorage(`widget-customer-info-${orgId}-${chatId}`);
-        onChatIdChange(CHAT_NOT_CREATED);
-      } finally {
-        setIsInitialized(true);
-        console.log("✅ [ChatSection] Chat initialized");
-      }
+      };
+
+      await fetchChatHistory();
+      setIsInitialized(true);
+      console.log("✅ [ChatSection] Chat initialized");
     };
 
     initializeChat();
