@@ -2,7 +2,7 @@ import { db } from "@/db";
 import { chats, organizations } from "@/db/schema";
 import { auth } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
-import { eq, desc } from "drizzle-orm";
+import { eq, desc, and } from "drizzle-orm";
 import { isAfterHours } from "@/lib/utils/business-hours";
 
 export async function GET(
@@ -16,12 +16,27 @@ export async function GET(
         }
 
         const { orgId } = await params;
+        const { searchParams } = new URL(req.url);
+        const filter = searchParams.get('filter') || 'all';
 
-        const organizationChats = await db
+        let query = db
             .select()
             .from(chats)
-            .where(eq(chats.organizationId, orgId))
-            .orderBy(desc(chats.createdAt));
+            .where(eq(chats.organizationId, orgId));
+
+        if (filter === 'resolved') {
+            query = db
+                .select()
+                .from(chats)
+                .where(and(eq(chats.organizationId, orgId), eq(chats.resolved, 1)));
+        } else if (filter === 'unresolved') {
+            query = db
+                .select()
+                .from(chats)
+                .where(and(eq(chats.organizationId, orgId), eq(chats.unresolved, 1)));
+        }
+
+        const organizationChats = await query.orderBy(desc(chats.createdAt));
 
         return NextResponse.json(organizationChats);
     } catch (error) {

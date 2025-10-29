@@ -16,6 +16,7 @@ import { Button } from "@/components/ui/button"
 import { Plus, MessageSquare, LayoutDashboard, Palette, BarChart3 } from "lucide-react"
 import { useState, useEffect } from "react"
 import { useRouter, useParams, usePathname } from "next/navigation"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 
 interface Chat {
     id: string
@@ -26,8 +27,11 @@ interface Chat {
     updatedAt: Date
 }
 
+type ChatFilter = 'all' | 'resolved' | 'unresolved'
+
 export function AppSidebar() {
     const [chats, setChats] = useState<Chat[]>([])
+    const [filter, setFilter] = useState<ChatFilter>('all')
     const router = useRouter()
     const params = useParams()
     const pathname = usePathname()
@@ -36,24 +40,24 @@ export function AppSidebar() {
     // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
     useEffect(() => {
         if (currentOrgId) {
-            fetchChats(currentOrgId)
+            fetchChats(currentOrgId, filter)
         }
-    }, [currentOrgId])
+    }, [currentOrgId, filter])
 
     useEffect(() => {
         const handleChatCreated = () => {
             if (currentOrgId) {
-                fetchChats(currentOrgId)
+                fetchChats(currentOrgId, filter)
             }
         }
 
         window.addEventListener('chatCreated', handleChatCreated)
         return () => window.removeEventListener('chatCreated', handleChatCreated)
-    }, [currentOrgId])
+    }, [currentOrgId, filter])
 
-    const fetchChats = async (orgId: string) => {
+    const fetchChats = async (orgId: string, filterType: ChatFilter) => {
         try {
-            const response = await fetch(`/api/organizations/${orgId}/chats`)
+            const response = await fetch(`/api/organizations/${orgId}/chats?filter=${filterType}`)
             if (response.ok) {
                 const data = await response.json()
                 setChats(data)
@@ -120,6 +124,18 @@ export function AppSidebar() {
                                         <Plus className="h-4 w-4 mr-2" />
                                         New Chat
                                     </Button>
+                                </div>
+                                <div className="px-2 pb-2">
+                                    <Select value={filter} onValueChange={(v) => setFilter(v as ChatFilter)}>
+                                        <SelectTrigger className="w-full">
+                                            <SelectValue />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="all">All Chats</SelectItem>
+                                            <SelectItem value="resolved">Resolved</SelectItem>
+                                            <SelectItem value="unresolved">Unresolved</SelectItem>
+                                        </SelectContent>
+                                    </Select>
                                 </div>
                                 <SidebarMenu>
                                     {chats.map((chat) => (
