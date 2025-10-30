@@ -65,7 +65,7 @@ export async function GET(req: NextRequest) {
 
             db.select({
                 topic: chats.questionTopic,
-                question: chats.questionText,
+                question: sql<string>`max(${chats.questionText})`,
                 count: sql<number>`count(*)::int`
             })
                 .from(chats)
@@ -76,7 +76,7 @@ export async function GET(req: NextRequest) {
                         sql`${chats.questionText} IS NOT NULL`
                     )
                 )
-                .groupBy(chats.questionTopic, chats.questionText)
+                .groupBy(chats.questionTopic)
                 .orderBy(desc(sql`count(*)`))
                 .limit(10),
 

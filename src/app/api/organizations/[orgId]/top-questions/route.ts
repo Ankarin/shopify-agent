@@ -18,7 +18,7 @@ export async function GET(
         const topQuestions = await db
             .select({
                 topic: chats.questionTopic,
-                question: chats.questionText,
+                question: sql<string>`max(${chats.questionText})`,
                 count: sql<number>`count(*)::int`,
                 resolvedCount: sql<number>`sum(case when ${chats.resolved} = 1 then 1 else 0 end)::int`,
                 unresolvedCount: sql<number>`sum(case when ${chats.unresolved} = 1 then 1 else 0 end)::int`,
@@ -32,7 +32,7 @@ export async function GET(
                     isNotNull(chats.questionText)
                 )
             )
-            .groupBy(chats.questionTopic, chats.questionText)
+            .groupBy(chats.questionTopic)
             .orderBy(sql`count(*) desc`)
             .limit(20);
 
