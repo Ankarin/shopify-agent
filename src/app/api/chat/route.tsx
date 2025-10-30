@@ -75,7 +75,17 @@ export const POST = async (req: NextRequest) => {
 
     const messages = [...(history ?? []), message];
 
+    const currentDate = new Date().toLocaleDateString('en-GB', { 
+        day: '2-digit', 
+        month: '2-digit', 
+        year: 'numeric',
+        timeZone: 'Europe/London'
+    });
+    
     const systemPrompt = `You are a helpful AI assistant for ${organization.name}, a Shopify online store. 
+
+CURRENT DATE: ${currentDate} (DD/MM/YYYY format)
+IMPORTANT: Use this date to determine if orders, deliveries, or events are in the past, present, or future.
         
 Store Information:
 - Store Name: ${organization.name}

@@ -4,11 +4,18 @@ export function isAfterHours(
     businessHoursStart: number = 9,
     businessHoursEnd: number = 17
 ): boolean {
-    const dateInTimezone = new Date(date.toLocaleString('en-US', { timeZone: timezone }));
-    const hour = dateInTimezone.getHours();
-    const day = dateInTimezone.getDay();
+    const formatter = new Intl.DateTimeFormat('en-US', {
+        timeZone: timezone,
+        hour: 'numeric',
+        hour12: false,
+        weekday: 'short'
+    });
 
-    const isWeekend = day === 0 || day === 6;
+    const parts = formatter.formatToParts(date);
+    const hour = parseInt(parts.find(p => p.type === 'hour')?.value || '0');
+    const weekday = parts.find(p => p.type === 'weekday')?.value || '';
+
+    const isWeekend = weekday === 'Sat' || weekday === 'Sun';
     const isOutsideBusinessHours = hour < businessHoursStart || hour >= businessHoursEnd;
 
     return isWeekend || isOutsideBusinessHours;
