@@ -7,7 +7,7 @@ import { ShopifyClient } from "@/lib/shopify/client";
 export async function GET(req: NextRequest) {
 
     try {
-        const windowDays = 7;
+        const windowDays = 30;
         const startTime = new Date();
         startTime.setDate(startTime.getDate() - windowDays);
 
@@ -72,7 +72,7 @@ export async function GET(req: NextRequest) {
                                 orderAmount: order.totalPriceSet.shopMoney.amount,
                                 currency: order.totalPriceSet.shopMoney.currencyCode,
                                 orderDate: new Date(order.createdAt),
-                                attributionWindow: '7d',
+                                attributionWindow: '30d',
                             });
 
                             newConversions++;
