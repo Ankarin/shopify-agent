@@ -122,7 +122,6 @@ export default function DashboardPage() {
     }
 
     const totalRevenue = Object.values(analytics.metrics.revenue).reduce((a, b) => a + b, 0);
-    const mainCurrency = Object.keys(analytics.metrics.revenue)[0] || 'USD';
 
     return (
         <div className="p-6 max-w-7xl mx-auto">
@@ -158,7 +157,7 @@ export default function DashboardPage() {
                     </CardHeader>
                     <CardContent>
                         <div className="text-2xl font-bold">
-                            {mainCurrency} ${totalRevenue.toFixed(2)}
+                            £{totalRevenue.toFixed(2)}
                         </div>
                         <p className="text-xs text-muted-foreground">
                             {analytics.metrics.totalConversions} conversions

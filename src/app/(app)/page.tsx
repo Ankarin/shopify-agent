@@ -84,7 +84,6 @@ export default function OverallDashboardPage() {
     }
 
     const totalRevenue = Object.values(analytics.overall.revenue).reduce((a, b) => a + b, 0);
-    const mainCurrency = Object.keys(analytics.overall.revenue)[0] || 'USD';
 
     return (
         <div className="p-6 max-w-7xl mx-auto">
@@ -120,7 +119,7 @@ export default function OverallDashboardPage() {
                     </CardHeader>
                     <CardContent>
                         <div className="text-2xl font-bold">
-                            {mainCurrency} ${totalRevenue.toFixed(2)}
+                            £{totalRevenue.toFixed(2)}
                         </div>
                         <p className="text-xs text-muted-foreground">
                             {analytics.overall.totalConversions} conversions
@@ -235,7 +234,7 @@ export default function OverallDashboardPage() {
                                             </div>
                                             <div>
                                                 <p className="text-muted-foreground">Revenue</p>
-                                                <p className="font-semibold">${client.totalRevenue.toFixed(2)}</p>
+                                                <p className="font-semibold">£{client.totalRevenue.toFixed(2)}</p>
                                             </div>
                                             <div>
                                                 <p className="text-muted-foreground">Status</p>
