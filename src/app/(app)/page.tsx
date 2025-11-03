@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Loader2, TrendingUp, MessageSquare, DollarSign, Users, CheckCircle, AlertCircle } from "lucide-react";
+import { Loader2, TrendingUp, MessageSquare, PoundSterling, Users, CheckCircle, AlertCircle } from "lucide-react";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Link from "next/link";
 
@@ -115,7 +115,7 @@ export default function OverallDashboardPage() {
                 <Card>
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                         <CardTitle className="text-sm font-medium">Revenue Generated</CardTitle>
-                        <DollarSign className="h-4 w-4 text-muted-foreground" />
+                        <PoundSterling className="h-4 w-4 text-muted-foreground" />
                     </CardHeader>
                     <CardContent>
                         <div className="text-2xl font-bold">
