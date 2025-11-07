@@ -191,7 +191,7 @@ IMPORTANT: When sharing support contact information (emails, phone numbers), alw
     });
 
     const result = streamText({
-        model: 'google/gemini-2.5-pro',
+        model: 'anthropic/claude-4.5-haiku',
         messages: convertToModelMessages(messages),
         system: systemPrompt,
         tools,
