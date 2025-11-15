@@ -235,7 +235,7 @@ export function WebsiteWidget({
             >
               Powered By{" "}
               <a
-                href="https://www.sevensocials.com/"
+                href="https://www.sevensocials.net/"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="ml-1 font-medium hover:underline"

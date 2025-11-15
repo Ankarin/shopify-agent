@@ -72,11 +72,11 @@ export async function POST(
       .limit(1);
 
     if (existing.length > 0) {
-      // Update existing settings
       const updated = await db
         .update(widgetSettings)
         .set({
           ...settingsData,
+          showBranding: settingsData.showBranding ? 1 : 0,
           updatedAt: new Date(),
         })
         .where(eq(widgetSettings.organizationId, orgId))
@@ -84,12 +84,12 @@ export async function POST(
 
       return NextResponse.json(updated[0]);
     } else {
-      // Create new settings
       const created = await db
         .insert(widgetSettings)
         .values({
           organizationId: orgId,
           ...settingsData,
+          showBranding: settingsData.showBranding ? 1 : 0,
         })
         .returning();
 
