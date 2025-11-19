@@ -63,10 +63,15 @@ export default function OrganizationPage({
             if (response.ok) {
                 const data = await response.json();
                 setOrganization(data);
+                
+                const dataValue = typeof data.data === 'string' 
+                    ? data.data 
+                    : (data.data?.originalData || "");
+                
                 setFormData({
                     name: data.name,
                     website: data.website,
-                    data: data.data || "",
+                    data: dataValue,
                     shopifyDomain: data.shopifyDomain || "",
                     shopifyAccessToken: data.shopifyAccessToken || "",
                     timezone: data.timezone || "Europe/London",
@@ -159,7 +164,9 @@ export default function OrganizationPage({
                             Data
                         </h3>
                         <p className="text-lg whitespace-pre-wrap">
-                            {organization.data || "No data available"}
+                            {typeof organization.data === 'string'
+                                ? organization.data
+                                : (organization.data as any)?.originalData || "No data available"}
                         </p>
                     </div>
 
