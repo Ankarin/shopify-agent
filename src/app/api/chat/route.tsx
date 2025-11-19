@@ -82,20 +82,13 @@ export const POST = async (req: NextRequest) => {
         timeZone: 'Europe/London'
     });
 
-    const orgData = organization.data as any;
-    const promptTemplate = orgData?.systemPrompt as string | undefined;
-    const originalData = orgData?.originalData;
-
-    const storeDataString = originalData
-        ? (typeof originalData === 'string' ? originalData : JSON.stringify(originalData, null, 2))
-        : '';
+    const promptTemplate = typeof organization.data === 'string' ? organization.data : null;
 
     const systemPrompt = promptTemplate
         ? promptTemplate
             .replace(/\{\{organizationName\}\}/g, organization.name)
             .replace(/\{\{currentDate\}\}/g, currentDate)
             .replace(/\{\{website\}\}/g, organization.website)
-            .replace(/\{\{storeData\}\}/g, storeDataString)
             .replace(/\{\{customerName\}\}/g, chat.customerName || 'Not provided')
             .replace(/\{\{customerEmail\}\}/g, chat.customerEmail || 'Not provided')
         : `You are a helpful AI assistant for ${organization.name}.`;
